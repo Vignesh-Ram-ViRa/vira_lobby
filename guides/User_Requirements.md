@@ -19,10 +19,10 @@ No inline CSS or static HTML content — all dynamic and reusable.
 Minimalist, responsive, multi-themed, future-proof UI.
 
 Overall Structure:
-Authentication (login/register) — placeholder screens, to be linked with existing Java Spring Boot auth later. For now anyone who hits the URL can access everything.
+Authentication (login/register) — placeholder screens, to be linked with existing supabase authentication. For now anyone who hits the URL can access everything.
 Header (edge-to-edge):
 	Left: Logo (ViRa's Lobby)
-	Center: Menu (Dashboard + Hobby tabs)
+	Center: Menu (Hobby tabs)
 	Right: Home, Theme Switcher, Profile Icon
 Footer: Copyright + Social Links
 Dashboard (Home):
@@ -32,7 +32,7 @@ Common Features for All Hobby Tabs:
 	Tile/Card Grid View + List View toggle (except tabs marked otherwise).
 	+ Button to add new entry → opens Modal Form (fields vary by tab).
 	Click tile → opens Detailed View Modal (full details + Update/Delete).
-	Advanced Search: single smart search input (filters across all relevant fields).
+	Advanced Search: single smart search input for each tab sepearately(filters across all relevant fields).
 	Sort by any field.
 	Export to Excel link.
 	Bulk Upload: CSV/Excel/JSON import in a predefined format → validate & batch insert.
@@ -66,7 +66,6 @@ Tabs & Data Fields:
 Routing & Access:
 	Fully functional deep linking (e.g., /bookworm goes directly to that page).
 	App can run standalone or be embedded in a parent app receiving JWT token via URL. 
-	If token + route provided, open that page pre-authenticated. No authentication for now since only mock data is used.
 
 Performance & UX Notes:
 	Efficient image loading (lazy load, placeholders).
@@ -77,10 +76,10 @@ Deliverables for this prompt:
 	React app scaffold with pages, components, routing, and theme system.
 	CSS module/theme system with three themes.
 	Reusable DataGrid component with card/list toggle, search, sort, export, bulk upload.
-	Sample mock data for each tab.
+	Table creation and initial data insertion queries as sql files for all tabs.
 	Modular modal components for Add/Edit/View.
 
-Do not add backend logic; only mock API calls with placeholder JSON and mock data in a constants file. (the mock data will be later replaced by actual data. i ll give the table structure alone for reference)
+All image uploads will happen through linking react -> supabase -> cloudinary . Add provisions to support that.
 Ensure all styles and components are modular and reusable.
 
 I ll give you screenshots for reference when we work on each tab. 

@@ -173,7 +173,69 @@ Fate	Fantasy	Epic battle of heroic spirits	1	Action, Fantasy	English	10-Jan		3	C
 Game of Thrones	Fantasy	Epic fantasy drama by George R.R. Martin	1	Drama, Fantasy	English	04-Nov	May-19	3	HBO		Torrent link available online
 Good Omens	Fantasy	Angel and demon try to prevent apocalypse	1	Comedy, Fantasy	English	May-19	Jun-19	3	Amazon Prime		NA
 Grimm	Fantasy	Detective fights supernatural creatures	1	Fantasy, Crime, Drama	English	10-Nov	Mar-17	3	NBC		NA
-
+Heroes	Fantasy	Ordinary people discover remarkable powers; epic drama	1	Drama, Sci-Fi	English	09/06	02/10	3	JioHotstar	https://m.media-amazon.com/images/I/71Q+e2yIX7L._SL1000_.jpg	NA
+His Dark Materials	Fantasy	Epic fantasy trilogy following young Lyra's quest	3	Fantasy, Adventure	English	11/19	11/22	3	Showmax	https://m.media-amazon.com/images/I/91l-P4RbWEL._SL1500_.jpg	NA
+House of Dragon	Fantasy	Prequel to Game of Thrones, houses vie for Iron Throne	1	Fantasy, Drama	English	08/22	Ongoing	3	JioHotstar	https://m.media-amazon.com/images/I/81nNuh7iD-L._SL1500_.jpg	NA
+Rings of Power	Fantasy	Middle-earth Second Age epic, fight for the Rings of Power	2	Fantasy, Adventure	English	09/22	Ongoing	3	Prime Video	https://m.media-amazon.com/images/I/91nqa8CojNL._SL1500_.jpg	NA
+Sabrina	Fantasy	Teenage witch life and adventures	1	Fantasy, Drama	English	10/18	05/20	3	Airtel Xstream	https://m.media-amazon.com/images/I/51vPIaL7iyL._SL1000_.jpg	Hindi version
+Sandman	Fantasy	Modern dark fantasy closely following the comic series	1	Fantasy, Drama	English	08/22	Ongoing	3	Netflix	https://m.media-amazon.com/images/I/71EVAlvDNkL._SL1000_.jpg	NA
+Shannara	Fantasy	Post-apocalyptic fantasy with magic and adventure	1	Fantasy, Adventure	English	01/16	01/17	3	Not available for streaming	https://m.media-amazon.com/images/I/81gc48SOtFL._SL1000_.jpg	Currently unavailable
+Spartacus	Fantasy	Gladiator rebellion, gritty action drama	3	Action, Drama	English	01/10	04/13	3	Lionsgate Play	https://m.media-amazon.com/images/I/81vWJ8Tdy9L._SL1500_.jpg	NA
+Stranger Things	Fantasy	Kids battle supernatural forces in 80s small town	4	Drama, Fantasy	English	07/16	Ongoing	3	Netflix	https://m.media-amazon.com/images/I/81LxV3Gb7UL._SL1500_.jpg	NA
+The Irregulars	Fantasy	Victorian street kids solving supernatural crimes	1	Fantasy, Mystery	English	03/21	05/21	3	Netflix	https://m.media-amazon.com/images/I/81ZIUu8jPaL._SL1000_.jpg	NA
+The Magicians	Fantasy	University students mastering magic, dark twists	5	Fantasy, Drama	English	12/15	04/20	3	SyFy	https://m.media-amazon.com/images/I/81VyJ7ft9YL._SL1500_.jpg	NA
+Vikings	Fantasy	Historical saga about Viking clans	6	Action, Drama	English	03/13	12/20	3	Prime Video	https://m.media-amazon.com/images/I/91257JNxTTL._SL1500_.jpg	NA
+Warrior Nun	Fantasy	A young nun battles demons and discovers powers	2	Fantasy, Action	English	07/20	Ongoing	3	Netflix	https://m.media-amazon.com/images/I/81U-IJ0iXGL._SL1500_.jpg	NA
+Wheel of Time	Fantasy	Epic fantasy based on Robert Jordan books	2	Fantasy, Drama	English	11/20	Ongoing	3	Prime Video	https://m.media-amazon.com/images/I/912yu7WiqBL._SL1500_.jpg	NA
+Witcher	Fantasy	Monster hunter Geralt in dark fantasy world	3	Fantasy, Adventure	English	12/19	Ongoing	3	Netflix	https://m.media-amazon.com/images/I/81nMygdz5YL._SL1500_.jpg	NA
+Worst Witch	Fantasy	Young witch in magical school	5	Fantasy, Family	English	03/17	Ongoing	3	CBBC iPlayer	https://m.media-amazon.com/images/I/81IA8wiC6dL._SL1500_.jpg	Based on Jill Murphy books
+Criminal Justice	Hindi	Legal drama series focusing on criminal investigation	2	Crime, Drama	Hindi	03/19	Ongoing	3	Hotstar	https://m.media-amazon.com/images/I/91TR4AHPhwL._SL1500_.jpg	NA
+The Great Indian Murder	Hindi	Crime thriller based on crime novel	1	Crime, Drama	Hindi	04/23	Ongoing	3	Hotstar	https://m.media-amazon.com/images/I/91mwRgdr-yL._SL1500_.jpg	NA
+Blood and Treasure	History	Adventure, Drama spanning history and crime	1	Adventure, Crime	English	07/19	Ongoing	3	Voot	https://m.media-amazon.com/images/I/81KIfl6xH7L._SL1500_.jpg	NA
+Lost Symbol	History	Adaptation of Dan Brown novel	1	Thriller, Crime	English	09/20	Ongoing	3	Voot	https://m.media-amazon.com/images/I/81mHmKx4tLL._SL1500_.jpg	NA
+National Treasure	History	Crime mystery involving historical treasures	1	Adventure, Crime	English	01/06	2025	3	Hotstar	https://m.media-amazon.com/images/I/81J+JKrIrZL._SL1500_.jpg	Movie related
+Falcon and Winter Soldier	Marvel	Superhero action drama	1	Action, Drama	English	03/21	05/21	3	Hotstar	https://m.media-amazon.com/images/I/81OWy1UbLtL._SL1500_.jpg	NA
+Gifted	Marvel	Superhero drama	1	Action, Drama	English	01/17	05/17	3	Hotstar	https://m.media-amazon.com/images/I/71ielNEoYtL._SL1500_.jpg	NA
+Hawkeye	Marvel	Superhero action	1	Action, Adventure	English	11/21	12/21	3	Hotstar	https://m.media-amazon.com/images/I/91OVPfvvTEL._SL1500_.jpg	NA
+Iron Fist	Marvel	Superhero martial arts	2	Action, Adventure	English	03/17	09/18	3	Netflix	https://m.media-amazon.com/images/I/81I-WRIysPL._SL1500_.jpg	NA
+Loki	Marvel	Superhero fantasy	1	Action, Adventure	English	06/21	07/21	3	Disney+ Hotstar	https://m.media-amazon.com/images/I/91Nq9pPZNmL._SL1500_.jpg	NA
+Ms. Marvel	Marvel	Superhero coming of age	1	Action, Adventure	English	06/22	07/22	3	Hotstar	https://m.media-amazon.com/images/I/71zG1xohlpL._SL1500_.jpg	NA
+New Mutants	Marvel	Superhero horror	1	Action, Horror	English	08/20	08/20	3	Amazon	https://m.media-amazon.com/images/I/91FSfaCiEZL._SL1500_.jpg	NA
+She Hulk	Marvel	Superhero legal comedy	1	Comedy, Superhero	English	08/22	Ongoing	3	Hotstar	https://m.media-amazon.com/images/I/81IVLG1DGuL._SL1500_.jpg	NA
+WandaVision	Marvel	Superhero sitcom	1	Comedy, Fantasy	English	01/21	03/21	3	Disney+ Hotstar	https://m.media-amazon.com/images/I/713Ai9ULOcL._SL1500_.jpg	NA
+Chicago Med	Other	Medical drama	8	Drama	English	11/15	Ongoing	3	NBC	https://m.media-amazon.com/images/I/91RtJuxrFYL._SL1200_.jpg	NA
+The Good Doctor	Other	Autistic doctor saves lives	7	Drama	English	09/17	Ongoing	3	ABC	https://m.media-amazon.com/images/I/91ctPtbE-zL._SL1500_.jpg	NA
+House	Other	Arrogant diagnostician solves medical mysteries	8	Drama	English	11/04	05/12	3	FOX	https://m.media-amazon.com/images/I/91v3bEjx76L._SL1500_.jpg	NA
+Money Heist	Other	Heist crime drama	5	Crime, Drama	Spanish	05/17	12/20	3	Netflix	https://m.media-amazon.com/images/I/81wGmMsqc4L._SL1500_.jpg	NA
+Prison Break	Other	Prison escape drama	5	Crime, Drama	English	08/05	05/17	3	Netflix	https://m.media-amazon.com/images/I/81ABoFQdUyL._SL1500_.jpg	NA
+Sex Education	Other	Teen coming-of-age comedy	4	Comedy, Drama	English	01/19	09/22	3	Netflix	https://m.media-amazon.com/images/I/81GvrT2bMvL._SL1500_.jpg	NA
+Suits	Other	Lawyers drama	9	Crime, Drama	English	06/11	09/19	3	Amazon	https://m.media-amazon.com/images/I/71e1npBwQ6L._SL1500_.jpg	NA
+Big Bang Theory	Sitcom	Comedy about socially awkward scientists	12	Comedy	English	09/07	05/19	3	CBS	https://m.media-amazon.com/images/I/71xRhGYEHyL._SL1500_.jpg	NA
+Friends	Sitcom	Friends navigating life in NYC	10	Comedy	English	09/94	05/04	3	Torrent	https://m.media-amazon.com/images/I/71ktaHTGTUL._SL1500_.jpg	Torrent link
+How I Met Your Mother	Sitcom	Comedy, Romance	9	Comedy, Romance	English	09/05	03/14	3	Hulu	https://m.media-amazon.com/images/I/81z3l7wZckL._SL1500_.jpg	NA
+Altered Carbon	Superhero	Sci-Fi, Crime	2	Sci-Fi, Crime	English	02/18	02/20	3	Netflix	https://m.media-amazon.com/images/I/81ye4o93EZL._SL1500_.jpg	NA
+Inhumans	Superhero	Action, Adventure	1	Action, Adventure	English	09/17	11/17	3	ABC	https://m.media-amazon.com/images/I/81AV4024obL._SL1500_.jpg	NA
+Jupiter's Legacy	Superhero	Action, Drama	1	Action, Drama	English	05/21	07/21	3	Netflix	https://m.media-amazon.com/images/I/811ODIPkRmL._SL1500_.jpg	NA
+Mr. Robot	Superhero	Thriller, Drama	4	Thriller, Drama	English	06/15	12/19	3	Amazon	https://m.media-amazon.com/images/I/8112NIpiTRL._SL1500_.jpg	NA
+The Boys	Superhero	Dark superhero	3	Action, Drama, Comedy	English	07/19	Ongoing	3	Prime Video	https://m.media-amazon.com/images/I/81MiPHXLaBL._SL1500_.jpg	NA
+The Imperfects	Superhero	Sci-Fi, Drama	1	Sci-Fi, Drama	English	09/21	10/21	3	Netflix	https://m.media-amazon.com/images/I/81KeWQvwPJL._SL1500_.jpg	NA
+Titans	DC	Superhero drama	4	Action, Drama	English	10/18	Ongoing	3	HBO Max	https://m.media-amazon.com/images/I/91PtuYdVKVL._SL1500_.jpg	NA
+Suzhal	Tamil	Crime thriller series	1	Crime, Thriller	Tamil	03/23	Ongoing	3	Prime Video	https://m.media-amazon.com/images/I/8103vXwY9VL._SL1500_.jpg	NA
+Time Enna Boss	Tamil	Comedy, Game Show	1	Comedy, Game Show	Tamil	01/23	Ongoing	3	Prime Video	https://m.media-amazon.com/images/I/81qrKeLN4YL._SL1500_.jpg	NA
+Vadhandhi	Tamil	Crime thriller series	1	Crime, Thriller	Tamil	03/23	Ongoing	3	Prime Video	https://m.media-amazon.com/images/I/81-RpE3L+PL._SL1500_.jpg	NA
+Deadly Class	Dark	School for criminals	1	Action, Crime	English	01/19	03/20	3	Netflix	https://m.media-amazon.com/images/I/81XI+2648SL._SL1500_.jpg	NA
+Rookie	Crime	Oldest rookie cop	5	Crime, Drama	English	10/18	Ongoing	3	Prime Video	https://m.media-amazon.com/images/I/81Yp9WdVQlL._SL1500_.jpg	NA
+Person of Interest	SciFi	Crime fighting AI builds team	5	Crime, Drama	English	09/11	06/16	3	Prime Video	https://m.media-amazon.com/images/I/91IW1eNWeXL._SL1500_.jpg	NA
+Lincoln Lawyer	Crime	Defense lawyer crime drama	1	Crime, Drama	English	05/21	Ongoing	3	Netflix	https://m.media-amazon.com/images/I/71aW7qs4poL._SL1500_.jpg	NA
+Kaleidoscope	Crime	Crime drama anthology series	1	Crime, Drama	English	08/19	Ongoing	3	Netflix	https://m.media-amazon.com/images/I/71d1HvIv6SL._SL1500_.jpg	NA
+House MD	Other	Medical drama about arrogant diagnostician	8	Drama	English	11/04	05/12	3	FOX	https://m.media-amazon.com/images/I/91v3bEjx76L._SL1500_.jpg	NA
+Dirk Gently's Holistic Detective Agency	SciFi	Holistic detective solving mysteries	2	Mystery, Sci-Fi	English	10/16	04/17	3	Netflix	https://m.media-amazon.com/images/I/81g3I6Io8XL._SL1500_.jpg	NA
+Homeland	Crime	CIA operations and intrigue	8	Crime, Drama	English	10/11	04/20	3	Hotstar	https://m.media-amazon.com/images/I/81KMN0EfjyL._SL1500_.jpg	NA
+Preacher	Fantasy	Preacher with supernatural powers seeks God	2	Fantasy, Action	English	05/16	09/19	3	Netflix	https://m.media-amazon.com/images/I/81OuuVoVHxL._SL1500_.jpg	NA
+The Order	Fantasy	College secret society with magic	2	Fantasy, Drama	English	03/19	07/19	3	Netflix	https://m.media-amazon.com/images/I/81phQvHtGrL._SL1500_.jpg	NA
+3 Body Problem	SciFi	Aliens and global conspiracy	1	Sci-Fi, Drama	Chinese	01/22	03/22	3	Netflix	https://m.media-amazon.com/images/I/81BUvTL0+NL._SL1500_.jpg	NA
+Dune	Fantasy	Futuristic epic saga	1	Sci-Fi, Adventure	English	10/20		3	HBO Max	https://m.media-amazon.com/images/I/91qnZIhO5NL._SL1500_.jpg	NA
+Ghosts	Comedy	Woman sees ghosts	1	Comedy, Fantasy	English	10/19	Ongoing	3	JioTV	https://m.media-amazon.com/images/I/81UoeuG93ZL._SL1500_.jpg	NA
 
 ## Film Frenzy
 Fields: title, verse, part, genres, language, date(mm/yy), imdb rating, star rating, watch/download link, poster image, comment
