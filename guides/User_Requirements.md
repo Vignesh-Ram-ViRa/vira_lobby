@@ -39,14 +39,14 @@ Common Features for All Hobby Tabs:
 	Front-end filtering for now (fetch all records on load; ~100 rows max).
 Tabs & Data Fields:
 	Bookworm – Books I’ve read
-		Fields: title, series, author(s), genres(tags), language, start date(mm/yy), end date(mm/yy), star rating, read/download link, cover image, comment
+		Fields: title, series, author(s), genres(tags), language, start date(mm/yy), end date(mm/yy), star rating, read/download link, pricing, cover image, comment
 		Variation: book-like card layout, emphasis on cover image and title.
 	Media Madness (parent menu) — contains three sub menus:
 		Bingescape – Web series
-			Fields: title, verse, season, genres, language, start date(mm/yy), end date(mm/yy), star rating, watch/download link, poster image, comment
+			Fields: title, verse, description, season, genres, language, start date(mm/yy), end date(mm/yy), star rating, watch/download link, poster image, comment
 			Variation: poster-dominant grid.
 		Film Frenzy – Movies
-			Fields: title, verse, part, genres, language, date(mm/yy), star rating, watch/download link, poster image, comment
+			Fields: title, verse, part, genres, language, date(mm/yy),imdb rating, star rating, watch/download link, poster image, comment
 			Variation: cinematic-style cards with date overlay.
 		Otaku Hub – Anime
 			Fields: title, verse, season, genres, language, start date(mm/yy), end date(mm/yy), star rating, watch/download link, poster image, comment
@@ -91,3 +91,9 @@ One correction. Please use supabase + cloudinary for db storage instead of mock 
 
 go through this requirements and our cursorRules. ask if you have any questions and clarifications.
 We will discuss further and get clear of our requirements and start development only when i explicitly ask you to "start development"
+
+
+## supabase
+N@rutoUzumaki130892
+uqrlvppsnppobzowlcqw
+postgresql://postgres:[YOUR-PASSWORD]@db.uqrlvppsnppobzowlcqw.supabase.co:5432/postgres
