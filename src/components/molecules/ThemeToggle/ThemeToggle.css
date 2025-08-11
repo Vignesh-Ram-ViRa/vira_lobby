@@ -1,0 +1,29 @@
+/* Theme Toggle Component */
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.theme-toggle:hover {
+  background-color: var(--color-bg-secondary);
+  transform: scale(1.1);
+}
+
+.theme-toggle__icon {
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.theme-toggle:hover .theme-toggle__icon {
+  color: var(--color-primary);
+} 

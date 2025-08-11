@@ -1,0 +1,19 @@
+/* Auth Layout Styles */
+
+.auth-layout {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-primary);
+  padding: var(--spacing-lg);
+}
+
+.auth-layout__container {
+  width: 100%;
+  max-width: 40rem;
+  padding: var(--spacing-xl);
+  background-color: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-strong);
+} 

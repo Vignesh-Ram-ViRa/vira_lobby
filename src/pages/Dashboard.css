@@ -1,0 +1,222 @@
+.dashboard-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  overflow-x: hidden;
+}
+
+/* Header Section */
+.dashboard-header {
+  width: 100%;
+  text-align: center;
+  padding: 2rem 0 1rem;
+}
+
+.dashboard-title h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  background: linear-gradient(135deg, var(--accent-primary), var(--text-primary));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Dashboard Content Container */
+.dashboard-content {
+  max-width: 120rem;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+/* Section Styling */
+.dashboard-section {
+  width: 100%;
+}
+
+/* Featured Cards Section (Top Row - Like main hero cards) */
+.dashboard-featured__grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 2rem;
+  align-items: stretch;
+}
+
+/* Stats Cards Section (Second Row - Metrics) */
+.dashboard-stats__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+/* Creative Cards Section (Third Row - Colorful cards) */
+.dashboard-creative__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  align-items: stretch;
+}
+
+/* Photography Section (Prominent cards) */
+.dashboard-photography__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  align-items: stretch;
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+  .dashboard-content {
+    gap: 2.5rem;
+  }
+  
+  .dashboard-featured__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  
+  .dashboard-stats__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+  
+  .dashboard-creative__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  
+  .dashboard-photography__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .dashboard-content {
+    gap: 2rem;
+    padding: 0 1.5rem 3rem;
+  }
+  
+  .dashboard-featured__grid,
+  .dashboard-creative__grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .dashboard-photography__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 1.5rem 0 1rem;
+  }
+  
+  .dashboard-content {
+    gap: 1.5rem;
+    padding: 0 1rem 2rem;
+  }
+  
+  .dashboard-featured__grid,
+  .dashboard-creative__grid,
+  .dashboard-photography__grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-header {
+    padding: 1rem 0 0.5rem;
+  }
+  
+  .dashboard-content {
+    gap: 1rem;
+    padding: 0 0.75rem 1.5rem;
+  }
+  
+  .dashboard-featured__grid,
+  .dashboard-creative__grid,
+  .dashboard-photography__grid {
+    gap: 0.75rem;
+  }
+}
+
+/* Section Headers (for future use) */
+.dashboard-section__header {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.dashboard-section__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.dashboard-section__subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin: 0;
+  opacity: 0.8;
+}
+
+/* Enhanced Visual Hierarchy */
+.dashboard-featured {
+  z-index: 3;
+  position: relative;
+}
+
+.dashboard-stats {
+  z-index: 2;
+  position: relative;
+}
+
+.dashboard-creative {
+  z-index: 2;
+  position: relative;
+}
+
+.dashboard-compact {
+  z-index: 1;
+  position: relative;
+}
+
+/* Smooth Transitions */
+.dashboard-content * {
+  transition: all 0.3s ease;
+}
+
+/* Loading State */
+.dashboard-content--loading {
+  pointer-events: none;
+}
+
+.dashboard-content--loading * {
+  opacity: 0.6;
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-content * {
+    transition: none;
+  }
+}
+
+/* High Contrast Support */
+@media (prefers-contrast: high) {
+  .dashboard-section {
+    border: 2px solid var(--border-primary);
+    border-radius: 1rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+} 
