@@ -97,7 +97,7 @@ const SearchBar = ({
               className="search-bar__clear-button"
               aria-label="Clear search"
             >
-              <Icon name="close" size={16} />
+              <Icon name="x" size={16} />
             </button>
           )}
         </div>
@@ -112,7 +112,7 @@ const SearchBar = ({
               aria-label={text.actions.filter}
               aria-expanded={isFilterOpen}
             >
-              <Icon name="filter" size={18} />
+              <Icon name="plus" size={18} />
               {getActiveFilterCount() > 0 && (
                 <span className="search-bar__filter-count">
                   {getActiveFilterCount()}

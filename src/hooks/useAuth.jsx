@@ -1,5 +1,8 @@
 import { useState, useEffect, useContext, createContext } from 'react'
-import { auth } from '@utils/supabase'
+import { supabase } from '@utils/supabase'
+
+// Session timeout duration (30 minutes in milliseconds)
+const SESSION_TIMEOUT = 30 * 60 * 1000
 
 // Auth Context
 const AuthContext = createContext()
@@ -10,6 +13,37 @@ export const AuthProvider = ({ children }) => {
   const [isGuest, setIsGuest] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [sessionTimer, setSessionTimer] = useState(null)
+
+  // Session timeout management
+  const startSessionTimer = () => {
+    // Clear existing timer
+    if (sessionTimer) {
+      clearTimeout(sessionTimer)
+    }
+    
+    // Set new timer
+    const timer = setTimeout(async () => {
+      console.log('Session expired - logging out')
+      await signOut()
+    }, SESSION_TIMEOUT)
+    
+    setSessionTimer(timer)
+  }
+
+  const clearSessionTimer = () => {
+    if (sessionTimer) {
+      clearTimeout(sessionTimer)
+      setSessionTimer(null)
+    }
+  }
+
+  // Reset session timer on user activity
+  const resetSessionTimer = () => {
+    if (user && !isGuest) {
+      startSessionTimer()
+    }
+  }
 
   // Initialize auth state
   useEffect(() => {
@@ -18,12 +52,17 @@ export const AuthProvider = ({ children }) => {
     // Get initial session
     const getInitialSession = async () => {
       try {
-        const { session, error } = await auth.getSession()
+        const { data: { session }, error } = await supabase.auth.getSession()
         if (error) throw error
         
         if (mounted) {
           setUser(session?.user ?? null)
           setLoading(false)
+          
+          // Start session timer if user is logged in
+          if (session?.user) {
+            startSessionTimer()
+          }
         }
       } catch (error) {
         if (mounted) {
@@ -37,7 +76,7 @@ export const AuthProvider = ({ children }) => {
     getInitialSession()
 
     // Listen for auth changes
-    const { data: { subscription } } = auth.onAuthStateChange(
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (mounted) {
           setUser(session?.user ?? null)
@@ -46,14 +85,58 @@ export const AuthProvider = ({ children }) => {
           // Clear guest mode when user logs in
           if (session?.user) {
             setIsGuest(false)
+            startSessionTimer()
+          } else {
+            clearSessionTimer()
           }
         }
       }
     )
 
+    // Listen for user activity to reset session timer
+    const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart']
+    
+    const handleUserActivity = () => {
+      resetSessionTimer()
+    }
+
+    activityEvents.forEach(event => {
+      document.addEventListener(event, handleUserActivity, { passive: true })
+    })
+
+    // Handle page visibility change (tab switching)
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Page is hidden (tab switched, minimized, etc.)
+        console.log('Page hidden - maintaining session')
+      } else {
+        // Page is visible again
+        resetSessionTimer()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    // Handle beforeunload (tab/window close)
+    const handleBeforeUnload = () => {
+      // Note: In modern browsers, you can't make async calls here
+      // The session will expire naturally due to timeout
+      clearSessionTimer()
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
     return () => {
       mounted = false
       subscription.unsubscribe()
+      clearSessionTimer()
+      
+      // Clean up event listeners
+      activityEvents.forEach(event => {
+        document.removeEventListener(event, handleUserActivity)
+      })
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('beforeunload', handleBeforeUnload)
     }
   }, [])
 
@@ -63,7 +146,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(true)
       setError(null)
       
-      const { data, error } = await auth.signIn(email, password)
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
       
       if (error) throw error
       
@@ -85,8 +168,8 @@ export const AuthProvider = ({ children }) => {
       setLoading(true)
       setError(null)
       
-      const { data, error } = await auth.signUp(email, password)
-      
+            const { data, error } = await supabase.auth.signUp({ email, password })
+
       if (error) throw error
       
       return { data, error: null }
@@ -104,7 +187,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(true)
       setError(null)
       
-      const { error } = await auth.signOut()
+      const { error } = await supabase.auth.signOut()
       
       if (error) throw error
       

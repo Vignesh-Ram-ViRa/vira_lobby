@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Icon } from '@components/atoms/Icon'
 import ThemeToggle from '@components/molecules/ThemeToggle'
+import ProfileDropdown from '@components/molecules/ProfileDropdown'
 import './MainLayout.css'
 
 const MainLayout = ({ children }) => {
@@ -40,12 +41,7 @@ const MainLayout = ({ children }) => {
             <Icon name="home" size={20} />
           </button>
           <ThemeToggle />
-          <button 
-            className="header__action"
-            title="Profile"
-          >
-            <Icon name="profile" size={20} />
-          </button>
+          <ProfileDropdown />
         </div>
       </header>
       

@@ -7,7 +7,7 @@ import { useAuth } from '@hooks/useAuth'
 import './Dashboard.css'
 
 const Dashboard = () => {
-  const { user, isGuest } = useAuth()
+  const { user, isGuest, isOwner, isSuperAdmin } = useAuth()
   const [hobbyStats, setHobbyStats] = useState({})
 
   const hobbyCategories = [
@@ -36,10 +36,17 @@ const Dashboard = () => {
   }
 
   const getUserId = () => {
-    if (isGuest) {
-      // For guest users, we'll look up the owner's ID
-      // For now, return null to skip data fetching until properly configured
+    if (isSuperAdmin()) {
+      // Super admin can see all records, return null to fetch all
       return null
+    }
+    if (isOwner() && user?.id) {
+      return user.id
+    }
+    if (isGuest) {
+      // For guests, we'll use the owner's ID to show their public records
+      // TODO: Replace with actual owner's UUID after running the SQL
+      return null // Return null for now until UUID is updated
     }
     return user?.id
   }

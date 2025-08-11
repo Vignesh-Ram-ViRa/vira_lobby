@@ -1,0 +1,79 @@
+.view-toggle {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0.25rem;
+  backdrop-filter: blur(10px);
+}
+
+.view-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 3rem;
+  height: 3rem;
+  border-radius: 0.5rem;
+  position: relative;
+}
+
+.view-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.6);
+  color: #1e293b;
+  transform: scale(1.05);
+}
+
+.view-toggle-btn.active {
+  background: #3b82f6;
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  transform: scale(1.02);
+}
+
+.view-toggle-btn:first-child {
+  margin-right: 0.25rem;
+}
+
+/* Theme Support */
+[data-theme="formal-dark"] .view-toggle {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+[data-theme="formal-dark"] .view-toggle-btn {
+  color: #cbd5e1;
+}
+
+[data-theme="formal-dark"] .view-toggle-btn:hover {
+  background: rgba(59, 130, 246, 0.2);
+  color: #f1f5f9;
+}
+
+[data-theme="formal-dark"] .view-toggle-btn.active {
+  background: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+[data-theme="fun-pastel"] .view-toggle {
+  background: rgba(250, 245, 255, 0.8);
+  border-color: rgba(139, 123, 184, 0.3);
+}
+
+[data-theme="fun-pastel"] .view-toggle-btn:hover {
+  background: rgba(139, 123, 184, 0.2);
+}
+
+[data-theme="fun-pastel"] .view-toggle-btn.active {
+  background: #8b7bb8;
+  color: white;
+  box-shadow: 0 4px 12px rgba(139, 123, 184, 0.4);
+} 
