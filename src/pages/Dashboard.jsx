@@ -59,8 +59,28 @@ const Dashboard = () => {
         const tableName = getTableName(hobby)
         const userId = getUserId()
 
-        // Skip if no user ID (guest without owner lookup)
-        if (!userId) {
+        let query = supabase.from(tableName)
+
+        // Build query based on user role
+        if (isSuperAdmin()) {
+          // Super admin sees all records
+          console.log(`Fetching all ${tableName} records for super admin`)
+        } else if (isOwner() && user?.id) {
+          query = query.eq('user_id', user.id)
+          console.log(`Fetching ${tableName} records for owner:`, user.id)
+        } else if (isGuest) {
+          // For guests, skip or use owner's UUID when available
+          stats[hobby] = {
+            count: 0,
+            topGenres: [],
+            averageRating: 0,
+            recentActivity: null
+          }
+          continue
+        } else if (user?.id) {
+          query = query.eq('user_id', user.id)
+        } else {
+          // No user, skip
           stats[hobby] = {
             count: 0,
             topGenres: [],
@@ -71,16 +91,12 @@ const Dashboard = () => {
         }
 
         // Count total items
-        const { count } = await supabase
-          .from(tableName)
+        const { count } = await query
           .select('*', { count: 'exact', head: true })
-          .eq('user_id', userId)
 
         // Get genres and ratings for calculations
-        const { data: items } = await supabase
-          .from(tableName)
+        const { data: items } = await query
           .select('genres, star_rating, created_at')
-          .eq('user_id', userId)
           .order('created_at', { ascending: false })
           .limit(100) // Limit for performance
 

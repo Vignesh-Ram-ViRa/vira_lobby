@@ -22,6 +22,14 @@ const MainLayout = ({ children }) => {
     { path: '/spot-light', icon: 'spotLight', label: 'Spot Light' }
   ]
 
+  // Get current page name
+  const getCurrentPageName = () => {
+    const currentItem = navigationItems.find(item => item.path === location.pathname)
+    return currentItem ? currentItem.label : ''
+  }
+
+  const currentPage = getCurrentPageName()
+
   const handleNavigation = (path) => {
     navigate(path)
   }
@@ -30,7 +38,10 @@ const MainLayout = ({ children }) => {
     <div className="main-layout">
       <header className="main-layout__header">
         <div className="header__logo">
-          <span className="logo__text">ViRa's Lobby</span>
+          <span className="logo__text">
+            ViRa's Lobby
+            {currentPage && <span className="logo__page"> - {currentPage}</span>}
+          </span>
         </div>
         <div className="header__actions">
           <button 

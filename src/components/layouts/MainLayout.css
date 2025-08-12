@@ -1,18 +1,15 @@
 /* Main Layout Styles */
 
+/* Main Layout Container */
 .main-layout {
-  min-height: 100vh;
   display: grid;
-  grid-template-areas: 
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
     "header header"
     "sidebar content";
-  grid-template-columns: 6rem 1fr;
-  grid-template-rows: 6rem 1fr;
-  background: 
-    var(--color-bg-primary),
-    var(--pattern-bg-color);
-  position: relative;
-  overflow: hidden;
+  height: 100vh;
+  overflow: hidden; /* Prevent overall page scroll */
 }
 
 .main-layout::before {
@@ -51,9 +48,8 @@
   z-index: 1000;
   box-shadow: var(--shadow-strong);
   position: relative;
-  z-index: 10;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  height: 60px; /* Fixed header height */
+  flex-shrink: 0; /* Prevent header from shrinking */
 }
 
 .main-layout__header::before {
@@ -78,14 +74,19 @@
 }
 
 .logo__text {
-  font-size: 2.4rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  background: var(--premium-gradient);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  position: relative;
-  transition: all var(--transition-normal);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo__page {
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  font-size: 1.2rem;
 }
 
 .logo__text::before {
@@ -167,16 +168,14 @@
 /* Sidebar */
 .main-layout__sidebar {
   grid-area: sidebar;
-  background: var(--color-bg-card);
+  background: var(--color-bg-secondary);
   border-right: 1px solid var(--color-border-medium);
-  box-shadow: var(--shadow-strong);
-  transition: all var(--transition-normal);
-  width: 6rem;
+  transition: width var(--transition-smooth);
+  width: 60px;
   overflow: hidden;
   position: relative;
-  z-index: 5;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  z-index: 100;
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
 }
 
 .main-layout__sidebar::before {
@@ -278,12 +277,11 @@
 /* Content */
 .main-layout__content {
   grid-area: content;
-  padding: var(--spacing-xl);
-  overflow-y: auto;
+  overflow-y: auto; /* Only content area scrolls */
+  overflow-x: hidden;
+  background: var(--color-bg-primary);
   position: relative;
-  z-index: 1;
-  background: var(--pattern-bg-color);
-  min-height: calc(100vh - 6rem);
+  height: calc(100vh - 60px); /* Account for header height */
 }
 
 .main-layout__content::before {

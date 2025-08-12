@@ -1,0 +1,270 @@
+/* Otaku Hub Page */
+.otaku-hub-page {
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  overflow-x: hidden;
+}
+
+/* Theme-specific backgrounds */
+:root[data-theme="formal-dark"] .otaku-hub-page {
+  background: #0a0a0a;
+}
+
+:root[data-theme="formal-light"] .otaku-hub-page {
+  background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+}
+
+:root[data-theme="fun-pastel"] .otaku-hub-page {
+  background: linear-gradient(135deg, #fff0f5 0%, #fce4ec 50%, #f8bbd9 100%);
+}
+
+/* Loading */
+.otaku-hub-loading {
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+}
+
+/* Controls */
+.otaku-hub-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem 4rem;
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border-medium);
+  position: relative;
+  z-index: 5;
+}
+
+:root[data-theme="formal-dark"] .otaku-hub-controls {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(10, 10, 10, 0.8) 50%,
+    #0a0a0a 100%
+  );
+}
+
+.otaku-hub-controls__left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex: 1;
+}
+
+.otaku-hub-controls__right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.otaku-hub-search {
+  max-width: 400px;
+  flex: 1;
+}
+
+/* Action Buttons */
+.otaku-hub-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-medium);
+  color: var(--color-text-primary);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.otaku-hub-action:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-strong);
+}
+
+.otaku-hub-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.otaku-hub-action--add {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+:root[data-theme="formal-dark"] .otaku-hub-action--add {
+  background: rgba(255, 64, 129, 0.8);
+  border-color: rgba(255, 64, 129, 0.6);
+  color: white;
+}
+
+:root[data-theme="formal-light"] .otaku-hub-action--add {
+  background: #e91e63;
+  border-color: #c2185b;
+  color: white;
+}
+
+:root[data-theme="fun-pastel"] .otaku-hub-action--add {
+  background: #f06292;
+  border-color: #ec407a;
+  color: white;
+}
+
+.otaku-hub-action--add:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.otaku-hub-action--upload,
+.otaku-hub-action--export {
+  width: 36px;
+  height: 36px;
+  border-radius: 0.5rem;
+}
+
+/* Content */
+.otaku-hub-content {
+  padding: 0 0 4rem 0;
+  background: var(--color-bg-primary);
+}
+
+/* Empty State */
+.otaku-hub-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.otaku-hub-empty h3 {
+  font-size: 2rem;
+  margin: 1rem 0 0.5rem 0;
+  color: var(--color-text-primary);
+}
+
+.otaku-hub-empty p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* List View */
+.otaku-hub-list {
+  padding: 2rem 4rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+/* Theme Overrides for Search and Controls */
+.otaku-hub-page .search-bar {
+  background: var(--color-bg-card);
+  border-color: var(--color-border-medium);
+}
+
+.otaku-hub-page .search-bar__input {
+  background: transparent;
+  color: var(--color-text-primary);
+}
+
+.otaku-hub-page .search-bar__input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.otaku-hub-page .view-toggle {
+  background: var(--color-bg-card);
+  border-color: var(--color-border-medium);
+}
+
+.otaku-hub-page .view-toggle-btn {
+  color: var(--color-text-secondary);
+}
+
+.otaku-hub-page .view-toggle-btn:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+:root[data-theme="formal-dark"] .otaku-hub-page .view-toggle-btn.active {
+  background: #ff4081;
+  color: white;
+}
+
+:root[data-theme="formal-light"] .otaku-hub-page .view-toggle-btn.active {
+  background: #e91e63;
+  color: white;
+}
+
+:root[data-theme="fun-pastel"] .otaku-hub-page .view-toggle-btn.active {
+  background: #f06292;
+  color: white;
+}
+
+/* Special Anime-themed styling */
+.otaku-hub-page .hero-carousel__badge {
+  background: linear-gradient(45deg, #ff4081, #ff6ec7);
+}
+
+.otaku-hub-page .content-row__title {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .otaku-hub-controls {
+    padding: 2rem 3rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .otaku-hub-controls {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 2rem;
+    align-items: stretch;
+  }
+  
+  .otaku-hub-controls__left {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .otaku-hub-controls__right {
+    justify-content: center;
+  }
+  
+  .otaku-hub-search {
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .otaku-hub-controls {
+    padding: 1.5rem 1rem;
+  }
+  
+  .otaku-hub-controls__right {
+    gap: 0.75rem;
+  }
+  
+  .otaku-hub-action--add {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .otaku-hub-action--upload,
+  .otaku-hub-action--export {
+    width: 40px;
+    height: 40px;
+  }
+} 

@@ -1,0 +1,286 @@
+/* Bingescape Page */
+.bingescape-page {
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  overflow-x: hidden;
+}
+
+/* Theme-specific backgrounds */
+:root[data-theme="formal-dark"] .bingescape-page {
+  background: #141414;
+}
+
+:root[data-theme="formal-light"] .bingescape-page {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+:root[data-theme="fun-pastel"] .bingescape-page {
+  background: linear-gradient(135deg, #fef7ff 0%, #f3e8ff 50%, #e8d5ff 100%);
+}
+
+/* Loading */
+.bingescape-loading {
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border-medium);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+:root[data-theme="formal-dark"] .loading-spinner {
+  border-top: 3px solid #e50914;
+}
+
+:root[data-theme="formal-light"] .loading-spinner {
+  border-top: 3px solid #dc3545;
+}
+
+:root[data-theme="fun-pastel"] .loading-spinner {
+  border-top: 3px solid #e91e63;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Controls */
+.bingescape-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem 4rem;
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border-medium);
+  position: relative;
+  z-index: 5;
+}
+
+:root[data-theme="formal-dark"] .bingescape-controls {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(20, 20, 20, 0.8) 50%,
+    #141414 100%
+  );
+}
+
+.bingescape-controls__left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex: 1;
+}
+
+.bingescape-controls__right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bingescape-search {
+  max-width: 400px;
+  flex: 1;
+}
+
+/* Action Buttons */
+.bingescape-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-medium);
+  color: var(--color-text-primary);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.bingescape-action:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-strong);
+}
+
+.bingescape-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.bingescape-action--add {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+:root[data-theme="formal-dark"] .bingescape-action--add {
+  background: rgba(229, 9, 20, 0.8);
+  border-color: rgba(229, 9, 20, 0.6);
+  color: white;
+}
+
+:root[data-theme="formal-light"] .bingescape-action--add {
+  background: #dc3545;
+  border-color: #c82333;
+  color: white;
+}
+
+:root[data-theme="fun-pastel"] .bingescape-action--add {
+  background: #e91e63;
+  border-color: #c2185b;
+  color: white;
+}
+
+.bingescape-action--add:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.bingescape-action--upload,
+.bingescape-action--export {
+  width: 36px;
+  height: 36px;
+  border-radius: 0.5rem;
+}
+
+/* Content */
+.bingescape-content {
+  padding: 0 0 4rem 0;
+  background: var(--color-bg-primary);
+}
+
+/* Empty State */
+.bingescape-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.bingescape-empty h3 {
+  font-size: 2rem;
+  margin: 1rem 0 0.5rem 0;
+  color: var(--color-text-primary);
+}
+
+.bingescape-empty p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* List View */
+.bingescape-list {
+  padding: 2rem 4rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+/* Theme Overrides for Search and Controls */
+.bingescape-page .search-bar {
+  background: var(--color-bg-card);
+  border-color: var(--color-border-medium);
+}
+
+.bingescape-page .search-bar__input {
+  background: transparent;
+  color: var(--color-text-primary);
+}
+
+.bingescape-page .search-bar__input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.bingescape-page .view-toggle {
+  background: var(--color-bg-card);
+  border-color: var(--color-border-medium);
+}
+
+.bingescape-page .view-toggle-btn {
+  color: var(--color-text-secondary);
+}
+
+.bingescape-page .view-toggle-btn:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+:root[data-theme="formal-dark"] .bingescape-page .view-toggle-btn.active {
+  background: #e50914;
+  color: white;
+}
+
+:root[data-theme="formal-light"] .bingescape-page .view-toggle-btn.active {
+  background: #dc3545;
+  color: white;
+}
+
+:root[data-theme="fun-pastel"] .bingescape-page .view-toggle-btn.active {
+  background: #e91e63;
+  color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .bingescape-controls {
+    padding: 2rem 3rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .bingescape-controls {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 2rem;
+    align-items: stretch;
+  }
+  
+  .bingescape-controls__left {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .bingescape-controls__right {
+    justify-content: center;
+  }
+  
+  .bingescape-search {
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .bingescape-controls {
+    padding: 1.5rem 1rem;
+  }
+  
+  .bingescape-controls__right {
+    gap: 0.75rem;
+  }
+  
+  .bingescape-action--add {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .bingescape-action--upload,
+  .bingescape-action--export {
+    width: 32px;
+    height: 32px;
+  }
+} 
