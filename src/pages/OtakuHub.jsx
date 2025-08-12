@@ -1,86 +1,60 @@
 import React, { useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { motion } from 'framer-motion'
-import { useSelector, useDispatch } from 'react-redux'
 import { Icon } from '@components/atoms/Icon'
 import SearchBar from '@components/molecules/SearchBar'
 import ViewToggle from '@components/molecules/ViewToggle'
 import HeroCarousel from '@components/organisms/HeroCarousel'
 import ContentRow from '@components/organisms/ContentRow'
+import { HobbyTable } from '@components/organisms/HobbyTable'
 import VisualMediaModal from '@components/organisms/VisualMediaModal'
+import { setAnime, addAnime, updateAnime, removeAnime, setLoading, setError } from '@features/otakuHub/otakuHubSlice'
 import { text } from '@constants/language'
+import { exportToExcel } from '@utils/exportUtils'
 import { supabase } from '@utils/supabase'
 import { useAuth } from '@hooks/useAuth'
-import { exportBooksToExcel } from '@utils/exportUtils'
-import { setLoading, setError } from '@features/otakuHub/otakuHubSlice'
 import './OtakuHub.css'
 
 const OtakuHub = () => {
   const dispatch = useDispatch()
   const { user, isGuest, isOwner, isSuperAdmin } = useAuth()
-  const { loading } = useSelector(state => state.otakuHub)
+  const { anime, loading, error } = useSelector(state => state.otakuHub)
   
-  const [anime, setAnime] = useState([])
-  const [searchQuery, setSearchQuery] = useState('')
-  const [viewMode, setViewMode] = useState('grid')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
   const [selectedAnime, setSelectedAnime] = useState(null)
-  const [showModal, setShowModal] = useState(false)
-  const [modalMode, setModalMode] = useState('view')
-
-  // Field configuration for the modal
-  const modalFields = [
-    { key: 'title', label: 'Title', type: 'text', placeholder: 'Enter anime title...' },
-    { key: 'verse', label: 'Verse/Type', type: 'text', placeholder: 'e.g., Anime, Manhwa, Western...' },
-    { key: 'season', label: 'Season', type: 'text', placeholder: 'e.g., Season 1, Complete Series...' },
-    { key: 'genres', label: 'Genres', type: 'genres', placeholder: 'Action, Fantasy, Comedy (comma separated)' },
-    { key: 'language', label: 'Language', type: 'text', placeholder: 'Japanese, English, etc.' },
-    { key: 'start_date', label: 'Start Date', type: 'text', placeholder: 'MM/YY format' },
-    { key: 'end_date', label: 'End Date', type: 'text', placeholder: 'MM/YY format' },
-    { key: 'star_rating', label: 'Star Rating', type: 'number', placeholder: '1-5', min: 1, max: 5 },
-    { key: 'watch_download_link', label: 'Watch/Download Link', type: 'text', placeholder: 'https://...' },
-    { key: 'poster_image_url', label: 'Poster Image URL', type: 'text', placeholder: 'https://...' },
-    { key: 'comment', label: 'Comment', type: 'textarea', placeholder: 'Your thoughts...' }
-  ]
-
-  // Get user ID based on role
-  const getUserId = () => {
-    if (isSuperAdmin()) {
-      return null // Super admin can see all records
-    }
-    if (isOwner() && user?.id) {
-      return user.id
-    }
-    if (isGuest) {
-      // For guests, show owner's public records
-      return null // Placeholder for owner's UUID
-    }
-    return user?.id
-  }
+  const [modalMode, setModalMode] = useState('view') // 'view', 'add', 'edit'
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   // Fetch anime from database
   const fetchAnime = async () => {
+    if (!user && !isGuest) return
+    
     dispatch(setLoading(true))
     try {
       let query = supabase.from('otaku_hub').select('*')
-
+      
+      // Apply user-specific filtering based on role
       if (isSuperAdmin()) {
+        // Super admin sees all records
         console.log('Fetching all anime for super admin')
       } else if (isOwner() && user?.id) {
+        // Owner sees only their records
         query = query.eq('user_id', user.id)
         console.log('Fetching anime for owner:', user.id)
       } else if (isGuest) {
+        // Guests see owner's public records
+        query = query.eq('user_id', 'OWNER_USER_ID_HERE') // Replace with actual owner UUID
         console.log('Fetching public anime for guest')
-        // TODO: Replace with actual owner's UUID
-        // query = query.eq('user_id', 'owner-uuid-here')
-      }
-
-      const { data, error } = await query.order('created_at', { ascending: false })
-
-      if (error) {
-        console.error('Error fetching anime:', error)
-        dispatch(setError(error.message))
       } else {
-        setAnime(data || [])
+        query = query.eq('user_id', user?.id)
       }
+      
+      const { data, error } = await query.order('created_at', { ascending: false })
+      
+      if (error) throw error
+      
+      dispatch(setAnime(data || []))
     } catch (error) {
       console.error('Error fetching anime:', error)
       dispatch(setError(error.message))
@@ -93,366 +67,339 @@ const OtakuHub = () => {
     fetchAnime()
   }, [user, isGuest])
 
-  // Filter anime based on search
+  // Filter anime based on search term
   const filteredAnime = anime.filter(show =>
-    show.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (show.verse && show.verse.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (show.genres && show.genres.some(genre => 
-      genre.toLowerCase().includes(searchQuery.toLowerCase())
-    ))
+    show.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    show.verse?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    show.genres?.some(genre => genre.toLowerCase().includes(searchTerm.toLowerCase()))
   )
 
-  // Group anime by categories for content rows
-  const getAnimeByGenre = (genre) => {
-    return filteredAnime.filter(show => 
-      show.genres && show.genres.includes(genre)
-    ).slice(0, 10)
-  }
+  // Remove duplicates for search results
+  const deduplicatedAnime = searchTerm 
+    ? filteredAnime.filter((show, index, self) => 
+        index === self.findIndex(s => s.id === show.id)
+      )
+    : filteredAnime
 
-  const getAnimeByVerse = (verse) => {
-    return filteredAnime.filter(show => 
-      show.verse && show.verse.toLowerCase().includes(verse.toLowerCase())
-    ).slice(0, 10)
-  }
-
-  const getAnimeByComment = (comment) => {
-    return filteredAnime.filter(show => 
-      show.comment && show.comment.toLowerCase().includes(comment.toLowerCase())
-    ).slice(0, 10)
-  }
-
-  const getFeaturedAnime = () => {
-    return filteredAnime
-      .filter(show => show.star_rating >= 3)
-      .sort((a, b) => (b.star_rating || 0) - (a.star_rating || 0))
-      .slice(0, 5)
-  }
-
-  const getRecentAnime = () => {
-    return filteredAnime
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .slice(0, 10)
-  }
-
-  // Handle anime interactions
   const handleAnimeClick = (show) => {
     setSelectedAnime(show)
     setModalMode('view')
-    setShowModal(true)
-  }
-
-  const handlePlayAnime = (show) => {
-    if (show.watch_download_link) {
-      window.open(show.watch_download_link, '_blank')
-    }
+    setIsModalOpen(true)
   }
 
   const handleAddAnime = () => {
     setSelectedAnime(null)
     setModalMode('add')
-    setShowModal(true)
+    setIsModalOpen(true)
   }
 
-  const handleModalSave = async (formData, mode) => {
-    try {
-      if (mode === 'add') {
-        const { data, error } = await supabase
-          .from('otaku_hub')
-          .insert([{ ...formData, user_id: user?.id }])
-          .select()
+  const handleEditAnime = (show) => {
+    setSelectedAnime(show)
+    setModalMode('edit')
+    setIsModalOpen(true)
+  }
 
-        if (error) throw error
-        setAnime(prev => [data[0], ...prev])
-      } else {
+  const handleSaveAnime = async (animeData) => {
+    try {
+      dispatch(setLoading(true))
+      
+      if (modalMode === 'add') {
         const { data, error } = await supabase
           .from('otaku_hub')
-          .update(formData)
+          .insert([{ ...animeData, user_id: user?.id }])
+          .select()
+        
+        if (error) throw error
+        if (data?.[0]) dispatch(addAnime(data[0]))
+      } else if (modalMode === 'edit') {
+        const { data, error } = await supabase
+          .from('otaku_hub')
+          .update(animeData)
           .eq('id', selectedAnime.id)
           .select()
-
+        
         if (error) throw error
-        setAnime(prev => prev.map(show => 
-          show.id === selectedAnime.id ? data[0] : show
-        ))
+        if (data?.[0]) dispatch(updateAnime(data[0]))
       }
-      return true
+      
+      setIsModalOpen(false)
+      setSelectedAnime(null)
     } catch (error) {
       console.error('Error saving anime:', error)
       dispatch(setError(error.message))
-      return false
+    } finally {
+      dispatch(setLoading(false))
     }
   }
 
-  const handleModalDelete = async (id) => {
+  const handleDeleteAnime = async (animeId) => {
     try {
+      dispatch(setLoading(true))
+      
       const { error } = await supabase
         .from('otaku_hub')
         .delete()
-        .eq('id', id)
-
+        .eq('id', animeId)
+      
       if (error) throw error
-      setAnime(prev => prev.filter(show => show.id !== id))
-      return true
+      
+      dispatch(removeAnime(animeId))
+      setIsModalOpen(false)
+      setSelectedAnime(null)
     } catch (error) {
       console.error('Error deleting anime:', error)
       dispatch(setError(error.message))
-      return false
+    } finally {
+      dispatch(setLoading(false))
     }
   }
 
   const handleExport = () => {
-    if (filteredAnime.length === 0) return
-    
-    const exportData = filteredAnime.map(show => ({
-      Title: show.title,
-      Verse: show.verse || '',
-      Season: show.season || '',
-      Genres: show.genres ? show.genres.join(', ') : '',
-      Language: show.language || '',
-      'Start Date': show.start_date || '',
-      'End Date': show.end_date || '',
-      'Star Rating': show.star_rating || '',
-      'Watch Link': show.watch_download_link || '',
-      Comment: show.comment || ''
-    }))
-    
-    exportBooksToExcel(exportData, 'otaku-hub-export')
+    exportToExcel(filteredAnime, 'otaku_hub_data')
   }
 
-  const handleViewChange = (newViewMode) => {
-    setViewMode(newViewMode)
-  }
-
-  // Content rows data
-  const contentRows = [
-    {
-      title: 'Featured Anime',
-      items: getFeaturedAnime()
-    },
-    {
-      title: 'Recently Added',
-      items: getRecentAnime()
-    },
-    {
-      title: 'Highly Rated ⭐',
-      items: getAnimeByComment('good')
-    },
-    {
-      title: 'Shounen Adventures',
-      items: getAnimeByGenre('Action')
-    },
-    {
-      title: 'Fantasy Worlds',
-      items: getAnimeByGenre('Fantasy')
-    },
-    {
-      title: 'Western Animation',
-      items: getAnimeByVerse('Western')
-    },
-    {
-      title: 'Isekai & Magic',
-      items: getAnimeByGenre('Isekai')
-    },
-    {
-      title: 'Supernatural Powers',
-      items: getAnimeByGenre('Supernatural')
+  const handleAction = (show, action) => {
+    switch (action) {
+      case 'view':
+        handleAnimeClick(show)
+        break
+      case 'edit':
+        handleEditAnime(show)
+        break
+      default:
+        break
     }
-  ].filter(row => row.items.length > 0)
+  }
+
+  // Table columns configuration
+  const tableColumns = [
+    {
+      field: 'poster_image_url',
+      label: 'Poster',
+      type: 'image',
+      sortable: false,
+      width: '80px'
+    },
+    {
+      field: 'title',
+      label: 'Title',
+      type: 'text',
+      sortable: true,
+      width: 'auto'
+    },
+    {
+      field: 'verse',
+      label: 'Universe',
+      type: 'text',
+      sortable: true,
+      width: '150px'
+    },
+    {
+      field: 'genres',
+      label: 'Genres',
+      type: 'genres',
+      sortable: false,
+      width: '180px'
+    },
+    {
+      field: 'season',
+      label: 'Season',
+      type: 'text',
+      sortable: true,
+      width: '100px'
+    },
+    {
+      field: 'star_rating',
+      label: 'Rating',
+      type: 'rating',
+      sortable: true,
+      width: '120px'
+    },
+    {
+      field: 'created_at',
+      label: 'Added',
+      type: 'date',
+      sortable: true,
+      width: '120px'
+    },
+    {
+      field: 'actions',
+      label: 'Actions',
+      type: 'actions',
+      sortable: false,
+      width: '120px'
+    }
+  ]
+
+  // Group anime for grid view display
+  const featuredAnime = deduplicatedAnime
+    .filter(show => show.star_rating >= 4)
+    .sort((a, b) => (b.star_rating || 0) - (a.star_rating || 0))
+    .slice(0, 10)
+
+  const recentAnime = deduplicatedAnime
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 10)
+
+  const topGenres = ['Action', 'Drama', 'Comedy', 'Romance', 'Fantasy', 'Slice of Life']
+  const genreRows = topGenres.map(genre => ({
+    title: genre,
+    items: deduplicatedAnime
+      .filter(show => show.genres?.includes(genre))
+      .sort((a, b) => (b.star_rating || 0) - (a.star_rating || 0))
+      .slice(0, 10)
+  })).filter(row => row.items.length > 0)
 
   if (loading) {
     return (
-      <div className="otaku-hub-page">
-        <div className="otaku-hub-loading">
-          <div className="loading-spinner"></div>
-          <p>Loading your anime collection...</p>
-        </div>
+      <div className="otaku-hub-loading">
+        <Icon name="loading" size={48} />
+        <p>Loading anime...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="otaku-hub-error">
+        <Icon name="warning" size={48} />
+        <p>Error loading anime: {error}</p>
       </div>
     )
   }
 
   return (
     <div className="otaku-hub-page">
-      {/* Hero Section */}
-      <HeroCarousel
-        items={getFeaturedAnime()}
-        onPlay={handlePlayAnime}
-        onInfo={handleAnimeClick}
-        onAdd={(show) => console.log('Add to list:', show)}
-      />
-
-      {/* Controls */}
-      <div className="otaku-hub-controls">
-        <div className="otaku-hub-controls__left">
-          <SearchBar
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            placeholder="Search anime, genres, or series..."
-            className="otaku-hub-search"
-          />
-          
-          <ViewToggle
-            currentView={viewMode}
-            onViewChange={handleViewChange}
-          />
+      {/* Header */}
+      <div className="otaku-hub-header">
+        <div className="otaku-hub-title">
+          <h1>{text.otakuHub.title}</h1>
+          <p>{text.otakuHub.description}</p>
         </div>
 
-        <div className="otaku-hub-controls__right">
-          <motion.button
-            className="otaku-hub-action otaku-hub-action--add"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={handleAddAnime}
-            title="Add Anime"
-          >
-            <Icon name="plus" size={20} />
-          </motion.button>
+        <div className="otaku-hub-actions">
+          <div className="otaku-hub-actions__left">
+            <SearchBar
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Search anime, manga, studios..."
+              className="otaku-hub-search"
+            />
+          </div>
+          
+          <div className="otaku-hub-actions__right">
+            <ViewToggle mode={viewMode} onChange={setViewMode} />
+            
+            <button
+              className="otaku-hub-action-btn otaku-hub-action-btn--add"
+              onClick={handleAddAnime}
+              title="Add Anime"
+            >
+              <Icon name="plus" size={20} />
+            </button>
 
-          <motion.button
-            className="otaku-hub-action otaku-hub-action--upload"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => console.log('Bulk upload')}
-            title="Bulk Upload"
-          >
-            <Icon name="upload" size={20} />
-          </motion.button>
-
-          <motion.button
-            className="otaku-hub-action otaku-hub-action--export"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleExport}
-            disabled={filteredAnime.length === 0}
-            title="Export to Excel"
-          >
-            <Icon name="file-excel" size={20} />
-          </motion.button>
+            <button
+              className="otaku-hub-action-btn otaku-hub-action-btn--export"
+              onClick={handleExport}
+              title="Export to Excel"
+            >
+              <Icon name="file-excel" size={20} />
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Content */}
-      {viewMode === 'grid' ? (
-        <div className="otaku-hub-content">
-          {filteredAnime.length === 0 ? (
-            <div className="otaku-hub-empty">
-              <Icon name="play" size={64} />
-              <h3>No anime found</h3>
-              <p>Start building your otaku collection!</p>
-            </div>
-          ) : searchQuery ? (
-            // When searching, show results without categories
-            <ContentRow
-              title={`Search Results for "${searchQuery}"`}
-              items={filteredAnime.slice(0, 20)} // Limit search results
-              onItemClick={handleAnimeClick}
-              itemType="poster"
-            />
-          ) : (
-            // When not searching, show organized content rows
-            contentRows.map((row, index) => (
+      <div className="otaku-hub-content">
+        {viewMode === 'grid' ? (
+          searchTerm ? (
+            /* Search Results */
+            <div className="otaku-hub-search-results">
+              <h2>Search Results ({deduplicatedAnime.length})</h2>
               <ContentRow
-                key={index}
-                title={row.title}
-                items={row.items}
+                title="Results"
+                items={deduplicatedAnime}
                 onItemClick={handleAnimeClick}
-                itemType="poster"
+                showTitle={false}
               />
-            ))
-          )}
-        </div>
-      ) : (
-        /* List View */
-        <div className="otaku-hub-list">
-          <div className="otaku-hub-list-header">
-            <div className="otaku-hub-list-header__cell">Poster</div>
-            <div className="otaku-hub-list-header__cell">Title</div>
-            <div className="otaku-hub-list-header__cell">Genre</div>
-            <div className="otaku-hub-list-header__cell">Season</div>
-            <div className="otaku-hub-list-header__cell">Rating</div>
-            <div className="otaku-hub-list-header__cell">Actions</div>
-          </div>
-          <div className="otaku-hub-list-body">
-            {filteredAnime.length === 0 ? (
-              <div className="otaku-hub-list-empty">
-                <Icon name="play" size={48} />
-                <p>No anime found</p>
+            </div>
+          ) : (
+            /* Regular Grid View */
+            <>
+              {/* Hero Carousel */}
+              {featuredAnime.length > 0 && (
+                <HeroCarousel
+                  items={featuredAnime.slice(0, 5)}
+                  onItemClick={handleAnimeClick}
+                />
+              )}
+
+              {/* Content Rows */}
+              <div className="otaku-hub-rows">
+                {recentAnime.length > 0 && (
+                  <ContentRow
+                    title="Recently Added"
+                    items={recentAnime}
+                    onItemClick={handleAnimeClick}
+                  />
+                )}
+
+                {featuredAnime.length > 0 && (
+                  <ContentRow
+                    title="Top Rated"
+                    items={featuredAnime}
+                    onItemClick={handleAnimeClick}
+                  />
+                )}
+
+                {genreRows.map((row, index) => (
+                  <ContentRow
+                    key={row.title}
+                    title={row.title}
+                    items={row.items}
+                    onItemClick={handleAnimeClick}
+                  />
+                ))}
               </div>
-            ) : (
-              filteredAnime.map((show, index) => (
-                <div key={show.id} className="otaku-hub-list-item">
-                  <div className="otaku-hub-list-item__cell otaku-hub-list-item__poster">
-                    <img
-                      src={show.poster_image_url}
-                      alt={show.title}
-                      className="otaku-hub-list-item__image"
-                      onError={(e) => {
-                        e.target.src = `https://source.unsplash.com/random/100x150/?${show.genres?.[0] || 'anime'},${show.title.replace(/\s/g, '')}&sig=${show.id}`
-                      }}
-                    />
-                  </div>
-                  <div className="otaku-hub-list-item__cell otaku-hub-list-item__title">
-                    <div className="otaku-hub-list-item__main-title">{show.title}</div>
-                    {show.verse && (
-                      <div className="otaku-hub-list-item__subtitle">{show.verse}</div>
-                    )}
-                  </div>
-                  <div className="otaku-hub-list-item__cell otaku-hub-list-item__genre">
-                    {show.genres?.slice(0, 2).map((genre, idx) => (
-                      <span key={idx} className="otaku-hub-list-item__tag">
-                        {genre}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="otaku-hub-list-item__cell otaku-hub-list-item__season">
-                    {show.season || '-'}
-                  </div>
-                  <div className="otaku-hub-list-item__cell otaku-hub-list-item__rating">
-                    <div className="otaku-hub-list-item__stars">
-                      {[...Array(5)].map((_, i) => (
-                        <Icon
-                          key={i}
-                          name={i < (show.star_rating || 0) ? 'star' : 'star-outline'}
-                          size={14}
-                          className={i < (show.star_rating || 0) ? 'star-filled' : 'star-empty'}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="otaku-hub-list-item__cell otaku-hub-list-item__actions">
-                    <button
-                      className="otaku-hub-list-item__action"
-                      onClick={() => handleAnimeClick(show)}
-                      title="View Details"
-                    >
-                      <Icon name="info" size={16} />
-                    </button>
-                    {show.watch_download_link && (
-                      <button
-                        className="otaku-hub-list-item__action"
-                        onClick={() => window.open(show.watch_download_link, '_blank')}
-                        title="Watch"
-                      >
-                        <Icon name="play" size={16} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
+            </>
+          )
+        ) : (
+          /* Table View */
+          <div className="otaku-hub-table-container">
+            <HobbyTable
+              items={deduplicatedAnime}
+              columns={tableColumns}
+              onItemClick={handleAnimeClick}
+              onAction={handleAction}
+              emptyMessage="No anime found"
+              emptyIcon="play"
+            />
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Modal */}
       <VisualMediaModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        mode={modalMode}
         item={selectedAnime}
-        onSave={handleModalSave}
-        onDelete={handleModalDelete}
-        initialMode={modalMode}
-        fields={modalFields}
-        title="Anime"
+        onSave={handleSaveAnime}
+        onDelete={handleDeleteAnime}
+        type="anime"
+        fields={[
+          { name: 'title', label: 'Title', type: 'text', required: true },
+          { name: 'verse', label: 'Universe/Series', type: 'text' },
+          { name: 'season', label: 'Season', type: 'text' },
+          { name: 'genres', label: 'Genres', type: 'tags' },
+          { name: 'language', label: 'Language', type: 'text' },
+          { name: 'start_date', label: 'Start Date', type: 'month' },
+          { name: 'end_date', label: 'End Date', type: 'month' },
+          { name: 'star_rating', label: 'Rating', type: 'rating' },
+          { name: 'watch_download_link', label: 'Watch/Download Link', type: 'url' },
+          { name: 'poster_image_url', label: 'Poster Image', type: 'image' },
+          { name: 'comment', label: 'Comments', type: 'textarea' }
+        ]}
       />
     </div>
   )

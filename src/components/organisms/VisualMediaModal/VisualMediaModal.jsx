@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Icon } from '@components/atoms/Icon'
 import Button from '@components/atoms/Button'
 import ImageUpload from '@components/molecules/ImageUpload'
-import { text } from '@constants/language'
 import './VisualMediaModal.css'
 
 const VisualMediaModal = ({
@@ -58,9 +57,9 @@ const VisualMediaModal = ({
     handleInputChange(imageField, imageUrl)
   }
 
-  const handleGenreChange = (value) => {
+  const handleGenreChange = (field, value) => {
     const genres = value.split(',').map(g => g.trim()).filter(g => g)
-    handleInputChange('genres', genres)
+    handleInputChange(field, genres)
   }
 
   const handleSave = async () => {
@@ -96,7 +95,7 @@ const VisualMediaModal = ({
   }
 
   const renderField = (field) => {
-    const value = formData[field.key] || ''
+    const value = formData[field.name] || ''
     const isReadOnly = mode === 'view'
 
     switch (field.type) {
@@ -105,7 +104,7 @@ const VisualMediaModal = ({
           <textarea
             className="form-textarea"
             value={value}
-            onChange={(e) => handleInputChange(field.key, e.target.value)}
+            onChange={(e) => handleInputChange(field.name, e.target.value)}
             placeholder={field.placeholder}
             rows={3}
             readOnly={isReadOnly}
@@ -117,7 +116,7 @@ const VisualMediaModal = ({
           <select
             className="form-select"
             value={value}
-            onChange={(e) => handleInputChange(field.key, e.target.value)}
+            onChange={(e) => handleInputChange(field.name, e.target.value)}
             disabled={isReadOnly}
           >
             <option value="">{field.placeholder}</option>
@@ -133,7 +132,7 @@ const VisualMediaModal = ({
             type="number"
             className="form-input"
             value={value}
-            onChange={(e) => handleInputChange(field.key, e.target.value)}
+            onChange={(e) => handleInputChange(field.name, e.target.value)}
             placeholder={field.placeholder}
             min={field.min}
             max={field.max}
@@ -142,13 +141,54 @@ const VisualMediaModal = ({
           />
         )
       
+      case 'month':
+        return (
+          <input
+            type="month"
+            className="form-input"
+            value={value}
+            onChange={(e) => handleInputChange(field.name, e.target.value)}
+            readOnly={isReadOnly}
+          />
+        )
+      
+      case 'url':
+        return (
+          <input
+            type="url"
+            className="form-input"
+            value={value}
+            onChange={(e) => handleInputChange(field.name, e.target.value)}
+            placeholder={field.placeholder}
+            readOnly={isReadOnly}
+          />
+        )
+      
+      case 'rating':
+        return (
+          <div className="rating-input">
+            {[1, 2, 3, 4, 5].map(rating => (
+              <button
+                key={rating}
+                type="button"
+                className={`rating-star ${rating <= (value || 0) ? 'filled' : ''}`}
+                onClick={() => !isReadOnly && handleInputChange(field.name, rating)}
+                disabled={isReadOnly}
+              >
+                <Icon name="star" size={20} />
+              </button>
+            ))}
+          </div>
+        )
+      
+      case 'tags':
       case 'genres':
         return (
           <input
             type="text"
             className="form-input"
             value={Array.isArray(value) ? value.join(', ') : value}
-            onChange={(e) => handleGenreChange(e.target.value)}
+            onChange={(e) => handleGenreChange(field.name, e.target.value)}
             placeholder={field.placeholder}
             readOnly={isReadOnly}
           />
@@ -160,7 +200,7 @@ const VisualMediaModal = ({
             type="text"
             className="form-input"
             value={value}
-            onChange={(e) => handleInputChange(field.key, e.target.value)}
+            onChange={(e) => handleInputChange(field.name, e.target.value)}
             placeholder={field.placeholder}
             readOnly={isReadOnly}
           />
@@ -214,23 +254,45 @@ const VisualMediaModal = ({
           {/* Modal Content */}
           <div className="visual-media-modal__content">
             <div className="visual-media-modal__layout">
-              {/* Image Upload */}
+              {/* Image Upload/Preview */}
               <div className="visual-media-modal__image">
-                <ImageUpload
-                  currentImageUrl={formData.poster_image_url || formData.cover_image_url || ''}
-                  onImageUpload={handleImageUpload}
-                  disabled={mode === 'view'}
-                />
+                {mode === 'view' ? (
+                  /* View Mode - Show Image Preview */
+                  <div className="image-preview">
+                    {formData.poster_image_url || formData.cover_image_url ? (
+                      <img
+                        src={formData.poster_image_url || formData.cover_image_url}
+                        alt={formData.title || 'Cover Image'}
+                        className="image-preview__img"
+                        onError={(e) => {
+                          e.target.src = `https://source.unsplash.com/400x600/?${formData.genres?.[0] || 'media'}&sig=${formData.id || 'default'}`
+                        }}
+                      />
+                    ) : (
+                      <div className="image-preview__placeholder">
+                        <Icon name="image-off" size={48} />
+                        <p>No image available</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  /* Edit/Add Mode - Show Upload Component */
+                  <ImageUpload
+                    currentImageUrl={formData.poster_image_url || formData.cover_image_url || ''}
+                    onImageUpload={handleImageUpload}
+                    disabled={false}
+                  />
+                )}
               </div>
 
               {/* Form Fields */}
               <div className="visual-media-modal__form">
-                {fields.map(field => (
-                  <div key={field.key} className="form-group">
+                {fields.filter(field => field.type !== 'image').map(field => (
+                  <div key={field.name} className="form-group">
                     <label className="form-label">{field.label}</label>
                     {renderField(field)}
-                    {errors[field.key] && (
-                      <span className="form-error">{errors[field.key]}</span>
+                    {errors[field.name] && (
+                      <span className="form-error">{errors[field.name]}</span>
                     )}
                   </div>
                 ))}

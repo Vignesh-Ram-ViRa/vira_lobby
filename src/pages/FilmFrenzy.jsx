@@ -1,86 +1,60 @@
 import React, { useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { motion } from 'framer-motion'
-import { useSelector, useDispatch } from 'react-redux'
 import { Icon } from '@components/atoms/Icon'
 import SearchBar from '@components/molecules/SearchBar'
 import ViewToggle from '@components/molecules/ViewToggle'
 import HeroCarousel from '@components/organisms/HeroCarousel'
 import ContentRow from '@components/organisms/ContentRow'
+import { HobbyTable } from '@components/organisms/HobbyTable'
 import VisualMediaModal from '@components/organisms/VisualMediaModal'
+import { setMovies, addMovie, updateMovie, removeMovie, setLoading, setError } from '@features/filmFrenzy/filmFrenzySlice'
 import { text } from '@constants/language'
+import { exportToExcel } from '@utils/exportUtils'
 import { supabase } from '@utils/supabase'
 import { useAuth } from '@hooks/useAuth'
-import { exportBooksToExcel } from '@utils/exportUtils'
-import { setLoading, setError } from '@features/filmFrenzy/filmFrenzySlice'
 import './FilmFrenzy.css'
 
 const FilmFrenzy = () => {
   const dispatch = useDispatch()
   const { user, isGuest, isOwner, isSuperAdmin } = useAuth()
-  const { loading } = useSelector(state => state.filmFrenzy)
+  const { movies, loading, error } = useSelector(state => state.filmFrenzy)
   
-  const [movies, setMovies] = useState([])
-  const [searchQuery, setSearchQuery] = useState('')
-  const [viewMode, setViewMode] = useState('grid')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
   const [selectedMovie, setSelectedMovie] = useState(null)
-  const [showModal, setShowModal] = useState(false)
-  const [modalMode, setModalMode] = useState('view')
-
-  // Field configuration for the modal
-  const modalFields = [
-    { key: 'title', label: 'Title', type: 'text', placeholder: 'Enter movie title...' },
-    { key: 'verse', label: 'Verse/Universe', type: 'text', placeholder: 'e.g., Marvel, DC, Standalone...' },
-    { key: 'part', label: 'Part/Number', type: 'text', placeholder: 'e.g., Part 1, Episode 2...' },
-    { key: 'genres', label: 'Genres', type: 'genres', placeholder: 'Action, Drama, Comedy (comma separated)' },
-    { key: 'language', label: 'Language', type: 'text', placeholder: 'English, Spanish, etc.' },
-    { key: 'date', label: 'Release Date', type: 'text', placeholder: 'MM/YY format' },
-    { key: 'imdb_rating', label: 'IMDB Rating', type: 'number', placeholder: '0.0-10.0', min: 0, max: 10, step: 0.1 },
-    { key: 'star_rating', label: 'Star Rating', type: 'number', placeholder: '1-5', min: 1, max: 5 },
-    { key: 'watch_download_link', label: 'Watch/Download Link', type: 'text', placeholder: 'https://...' },
-    { key: 'poster_image_url', label: 'Poster Image URL', type: 'text', placeholder: 'https://...' },
-    { key: 'comment', label: 'Comment', type: 'textarea', placeholder: 'Your thoughts...' }
-  ]
-
-  // Get user ID based on role
-  const getUserId = () => {
-    if (isSuperAdmin()) {
-      return null // Super admin can see all records
-    }
-    if (isOwner() && user?.id) {
-      return user.id
-    }
-    if (isGuest) {
-      // For guests, show owner's public records
-      return null // Placeholder for owner's UUID
-    }
-    return user?.id
-  }
+  const [modalMode, setModalMode] = useState('view') // 'view', 'add', 'edit'
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   // Fetch movies from database
   const fetchMovies = async () => {
+    if (!user && !isGuest) return
+    
     dispatch(setLoading(true))
     try {
       let query = supabase.from('film_frenzy').select('*')
-
+      
+      // Apply user-specific filtering based on role
       if (isSuperAdmin()) {
+        // Super admin sees all records
         console.log('Fetching all movies for super admin')
       } else if (isOwner() && user?.id) {
+        // Owner sees only their records
         query = query.eq('user_id', user.id)
         console.log('Fetching movies for owner:', user.id)
       } else if (isGuest) {
+        // Guests see owner's public records
+        query = query.eq('user_id', 'OWNER_USER_ID_HERE') // Replace with actual owner UUID
         console.log('Fetching public movies for guest')
-        // TODO: Replace with actual owner's UUID
-        // query = query.eq('user_id', 'owner-uuid-here')
-      }
-
-      const { data, error } = await query.order('created_at', { ascending: false })
-
-      if (error) {
-        console.error('Error fetching movies:', error)
-        dispatch(setError(error.message))
       } else {
-        setMovies(data || [])
+        query = query.eq('user_id', user?.id)
       }
+      
+      const { data, error } = await query.order('created_at', { ascending: false })
+      
+      if (error) throw error
+      
+      dispatch(setMovies(data || []))
     } catch (error) {
       console.error('Error fetching movies:', error)
       dispatch(setError(error.message))
@@ -93,359 +67,340 @@ const FilmFrenzy = () => {
     fetchMovies()
   }, [user, isGuest])
 
-  // Filter movies based on search
+  // Filter movies based on search term
   const filteredMovies = movies.filter(movie =>
-    movie.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (movie.verse && movie.verse.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (movie.part && movie.part.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (movie.genres && movie.genres.some(genre => 
-      genre.toLowerCase().includes(searchQuery.toLowerCase())
-    ))
+    movie.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    movie.verse?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    movie.part?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    movie.genres?.some(genre => genre.toLowerCase().includes(searchTerm.toLowerCase()))
   )
 
-  // Group movies by categories for content rows
-  const getMoviesByGenre = (genre) => {
-    return filteredMovies.filter(movie => 
-      movie.genres && movie.genres.includes(genre)
-    ).slice(0, 10)
-  }
+  // Remove duplicates for search results
+  const deduplicatedMovies = searchTerm 
+    ? filteredMovies.filter((movie, index, self) => 
+        index === self.findIndex(m => m.id === movie.id)
+      )
+    : filteredMovies
 
-  const getMoviesByIMDBRating = (minRating) => {
-    return filteredMovies.filter(movie => 
-      movie.imdb_rating && movie.imdb_rating >= minRating
-    ).sort((a, b) => (b.imdb_rating || 0) - (a.imdb_rating || 0)).slice(0, 10)
-  }
-
-  const getFeaturedMovies = () => {
-    return filteredMovies
-      .filter(movie => movie.star_rating >= 3)
-      .sort((a, b) => (b.star_rating || 0) - (a.star_rating || 0))
-      .slice(0, 5)
-  }
-
-  const getRecentMovies = () => {
-    return filteredMovies
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .slice(0, 10)
-  }
-
-  // Handle movie interactions
   const handleMovieClick = (movie) => {
     setSelectedMovie(movie)
     setModalMode('view')
-    setShowModal(true)
-  }
-
-  const handlePlayMovie = (movie) => {
-    if (movie.watch_download_link) {
-      window.open(movie.watch_download_link, '_blank')
-    }
+    setIsModalOpen(true)
   }
 
   const handleAddMovie = () => {
     setSelectedMovie(null)
     setModalMode('add')
-    setShowModal(true)
+    setIsModalOpen(true)
   }
 
-  const handleModalSave = async (formData, mode) => {
-    try {
-      if (mode === 'add') {
-        const { data, error } = await supabase
-          .from('film_frenzy')
-          .insert([{ ...formData, user_id: user?.id }])
-          .select()
+  const handleEditMovie = (movie) => {
+    setSelectedMovie(movie)
+    setModalMode('edit')
+    setIsModalOpen(true)
+  }
 
-        if (error) throw error
-        setMovies(prev => [data[0], ...prev])
-      } else {
+  const handleSaveMovie = async (movieData) => {
+    try {
+      dispatch(setLoading(true))
+      
+      if (modalMode === 'add') {
         const { data, error } = await supabase
           .from('film_frenzy')
-          .update(formData)
+          .insert([{ ...movieData, user_id: user?.id }])
+          .select()
+        
+        if (error) throw error
+        if (data?.[0]) dispatch(addMovie(data[0]))
+      } else if (modalMode === 'edit') {
+        const { data, error } = await supabase
+          .from('film_frenzy')
+          .update(movieData)
           .eq('id', selectedMovie.id)
           .select()
-
+        
         if (error) throw error
-        setMovies(prev => prev.map(movie => 
-          movie.id === selectedMovie.id ? data[0] : movie
-        ))
+        if (data?.[0]) dispatch(updateMovie(data[0]))
       }
-      return true
+      
+      setIsModalOpen(false)
+      setSelectedMovie(null)
     } catch (error) {
       console.error('Error saving movie:', error)
       dispatch(setError(error.message))
-      return false
+    } finally {
+      dispatch(setLoading(false))
     }
   }
 
-  const handleModalDelete = async (id) => {
+  const handleDeleteMovie = async (movieId) => {
     try {
+      dispatch(setLoading(true))
+      
       const { error } = await supabase
         .from('film_frenzy')
         .delete()
-        .eq('id', id)
-
+        .eq('id', movieId)
+      
       if (error) throw error
-      setMovies(prev => prev.filter(movie => movie.id !== id))
-      return true
+      
+      dispatch(removeMovie(movieId))
+      setIsModalOpen(false)
+      setSelectedMovie(null)
     } catch (error) {
       console.error('Error deleting movie:', error)
       dispatch(setError(error.message))
-      return false
+    } finally {
+      dispatch(setLoading(false))
     }
   }
 
   const handleExport = () => {
-    if (filteredMovies.length === 0) return
-    
-    const exportData = filteredMovies.map(movie => ({
-      Title: movie.title,
-      Verse: movie.verse || '',
-      Part: movie.part || '',
-      Genres: movie.genres ? movie.genres.join(', ') : '',
-      Language: movie.language || '',
-      Date: movie.date || '',
-      'IMDB Rating': movie.imdb_rating || '',
-      'Star Rating': movie.star_rating || '',
-      'Watch Link': movie.watch_download_link || '',
-      Comment: movie.comment || ''
-    }))
-    
-    exportBooksToExcel(exportData, 'film-frenzy-export')
+    exportToExcel(filteredMovies, 'film_frenzy_data')
   }
 
-  const handleViewChange = (newViewMode) => {
-    setViewMode(newViewMode)
-  }
-
-  // Content rows data
-  const contentRows = [
-    {
-      title: 'Featured Movies',
-      items: getFeaturedMovies()
-    },
-    {
-      title: 'Recently Added',
-      items: getRecentMovies()
-    },
-    {
-      title: 'Highly Rated (IMDB 7+)',
-      items: getMoviesByIMDBRating(7.0)
-    },
-    {
-      title: 'Action & Adventure',
-      items: getMoviesByGenre('Action')
-    },
-    {
-      title: 'Fantasy & Sci-Fi',
-      items: getMoviesByGenre('Fantasy')
-    },
-    {
-      title: 'Disney Collection',
-      items: filteredMovies.filter(movie => 
-        movie.watch_download_link && movie.watch_download_link.includes('Disney')
-      ).slice(0, 10)
-    },
-    {
-      title: 'Thriller & Mystery',
-      items: getMoviesByGenre('Thriller')
+  const handleAction = (movie, action) => {
+    switch (action) {
+      case 'view':
+        handleMovieClick(movie)
+        break
+      case 'edit':
+        handleEditMovie(movie)
+        break
+      default:
+        break
     }
-  ].filter(row => row.items.length > 0)
+  }
+
+  // Table columns configuration
+  const tableColumns = [
+    {
+      field: 'poster_image_url',
+      label: 'Poster',
+      type: 'image',
+      sortable: false,
+      width: '80px'
+    },
+    {
+      field: 'title',
+      label: 'Title',
+      type: 'text',
+      sortable: true,
+      width: 'auto'
+    },
+    {
+      field: 'verse',
+      label: 'Universe',
+      type: 'text',
+      sortable: true,
+      width: '150px'
+    },
+    {
+      field: 'genres',
+      label: 'Genres',
+      type: 'genres',
+      sortable: false,
+      width: '180px'
+    },
+    {
+      field: 'imdb_rating',
+      label: 'IMDB',
+      type: 'text',
+      sortable: true,
+      width: '80px'
+    },
+    {
+      field: 'star_rating',
+      label: 'Rating',
+      type: 'rating',
+      sortable: true,
+      width: '120px'
+    },
+    {
+      field: 'date',
+      label: 'Released',
+      type: 'text',
+      sortable: true,
+      width: '100px'
+    },
+    {
+      field: 'actions',
+      label: 'Actions',
+      type: 'actions',
+      sortable: false,
+      width: '120px'
+    }
+  ]
+
+  // Group movies for grid view display
+  const topRatedMovies = deduplicatedMovies
+    .filter(movie => (movie.imdb_rating && movie.imdb_rating >= 8) || (movie.star_rating && movie.star_rating >= 4))
+    .sort((a, b) => (b.imdb_rating || 0) - (a.imdb_rating || 0))
+    .slice(0, 10)
+
+  const recentMovies = deduplicatedMovies
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 10)
+
+  const topGenres = ['Action', 'Drama', 'Comedy', 'Thriller', 'Sci-Fi', 'Horror']
+  const genreRows = topGenres.map(genre => ({
+    title: genre,
+    items: deduplicatedMovies
+      .filter(movie => movie.genres?.includes(genre))
+      .sort((a, b) => (b.star_rating || 0) - (a.star_rating || 0))
+      .slice(0, 10)
+  })).filter(row => row.items.length > 0)
 
   if (loading) {
     return (
-      <div className="film-frenzy-page">
-        <div className="film-frenzy-loading">
-          <div className="loading-spinner"></div>
-          <p>Loading your movies...</p>
-        </div>
+      <div className="film-frenzy-loading">
+        <Icon name="loading" size={48} />
+        <p>Loading movies...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="film-frenzy-error">
+        <Icon name="warning" size={48} />
+        <p>Error loading movies: {error}</p>
       </div>
     )
   }
 
   return (
     <div className="film-frenzy-page">
-      {/* Hero Section */}
-      <HeroCarousel
-        items={getFeaturedMovies()}
-        onPlay={handlePlayMovie}
-        onInfo={handleMovieClick}
-        onAdd={(movie) => console.log('Add to list:', movie)}
-      />
-
-      {/* Controls */}
-      <div className="film-frenzy-controls">
-        <div className="film-frenzy-controls__left">
-          <SearchBar
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            placeholder="Search movies, genres, or series..."
-            className="film-frenzy-search"
-          />
-          
-          <ViewToggle
-            currentView={viewMode}
-            onViewChange={handleViewChange}
-          />
+      {/* Header */}
+      <div className="film-frenzy-header">
+        <div className="film-frenzy-title">
+          <h1>{text.filmFrenzy.title}</h1>
+          <p>{text.filmFrenzy.description}</p>
         </div>
 
-        <div className="film-frenzy-controls__right">
-          <motion.button
-            className="film-frenzy-action film-frenzy-action--add"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={handleAddMovie}
-            title="Add Movie"
-          >
-            <Icon name="plus" size={20} />
-          </motion.button>
+        <div className="film-frenzy-actions">
+          <div className="film-frenzy-actions__left">
+            <SearchBar
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Search movies, franchises, directors..."
+              className="film-frenzy-search"
+            />
+          </div>
+          
+          <div className="film-frenzy-actions__right">
+            <ViewToggle mode={viewMode} onChange={setViewMode} />
+            
+            <button
+              className="film-frenzy-action-btn film-frenzy-action-btn--add"
+              onClick={handleAddMovie}
+              title="Add Movie"
+            >
+              <Icon name="plus" size={20} />
+            </button>
 
-          <motion.button
-            className="film-frenzy-action film-frenzy-action--upload"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => console.log('Bulk upload')}
-            title="Bulk Upload"
-          >
-            <Icon name="upload" size={20} />
-          </motion.button>
-
-          <motion.button
-            className="film-frenzy-action film-frenzy-action--export"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleExport}
-            disabled={filteredMovies.length === 0}
-            title="Export to Excel"
-          >
-            <Icon name="file-excel" size={20} />
-          </motion.button>
+            <button
+              className="film-frenzy-action-btn film-frenzy-action-btn--export"
+              onClick={handleExport}
+              title="Export to Excel"
+            >
+              <Icon name="file-excel" size={20} />
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Content */}
-      {viewMode === 'grid' ? (
-        <div className="film-frenzy-content">
-          {filteredMovies.length === 0 ? (
-            <div className="film-frenzy-empty">
-              <Icon name="play" size={64} />
-              <h3>No movies found</h3>
-              <p>Start building your cinema collection!</p>
-            </div>
-          ) : searchQuery ? (
-            // When searching, show results without categories
-            <ContentRow
-              title={`Search Results for "${searchQuery}"`}
-              items={filteredMovies.slice(0, 20)} // Limit search results
-              onItemClick={handleMovieClick}
-              itemType="poster"
-            />
-          ) : (
-            // When not searching, show organized content rows
-            contentRows.map((row, index) => (
+      <div className="film-frenzy-content">
+        {viewMode === 'grid' ? (
+          searchTerm ? (
+            /* Search Results */
+            <div className="film-frenzy-search-results">
+              <h2>Search Results ({deduplicatedMovies.length})</h2>
               <ContentRow
-                key={index}
-                title={row.title}
-                items={row.items}
+                title="Results"
+                items={deduplicatedMovies}
                 onItemClick={handleMovieClick}
-                itemType="poster"
+                showTitle={false}
               />
-            ))
-          )}
-        </div>
-      ) : (
-        /* List View */
-        <div className="film-frenzy-list">
-          <div className="film-frenzy-list-header">
-            <div className="film-frenzy-list-header__cell">Poster</div>
-            <div className="film-frenzy-list-header__cell">Title</div>
-            <div className="film-frenzy-list-header__cell">Genre</div>
-            <div className="film-frenzy-list-header__cell">IMDB</div>
-            <div className="film-frenzy-list-header__cell">Rating</div>
-            <div className="film-frenzy-list-header__cell">Actions</div>
-          </div>
-          <div className="film-frenzy-list-body">
-            {filteredMovies.length === 0 ? (
-              <div className="film-frenzy-list-empty">
-                <Icon name="play" size={48} />
-                <p>No movies found</p>
+            </div>
+          ) : (
+            /* Regular Grid View */
+            <>
+              {/* Hero Carousel */}
+              {topRatedMovies.length > 0 && (
+                <HeroCarousel
+                  items={topRatedMovies.slice(0, 5)}
+                  onItemClick={handleMovieClick}
+                />
+              )}
+
+              {/* Content Rows */}
+              <div className="film-frenzy-rows">
+                {recentMovies.length > 0 && (
+                  <ContentRow
+                    title="Recently Added"
+                    items={recentMovies}
+                    onItemClick={handleMovieClick}
+                  />
+                )}
+
+                {topRatedMovies.length > 0 && (
+                  <ContentRow
+                    title="Top Rated"
+                    items={topRatedMovies}
+                    onItemClick={handleMovieClick}
+                  />
+                )}
+
+                {genreRows.map((row, index) => (
+                  <ContentRow
+                    key={row.title}
+                    title={row.title}
+                    items={row.items}
+                    onItemClick={handleMovieClick}
+                  />
+                ))}
               </div>
-            ) : (
-              filteredMovies.map((movie, index) => (
-                <div key={movie.id} className="film-frenzy-list-item">
-                  <div className="film-frenzy-list-item__cell film-frenzy-list-item__poster">
-                    <img
-                      src={movie.poster_image_url}
-                      alt={movie.title}
-                      className="film-frenzy-list-item__image"
-                      onError={(e) => {
-                        e.target.src = `https://source.unsplash.com/random/100x150/?${movie.genres?.[0] || 'movie'},${movie.title.replace(/\s/g, '')}&sig=${movie.id}`
-                      }}
-                    />
-                  </div>
-                  <div className="film-frenzy-list-item__cell film-frenzy-list-item__title">
-                    <div className="film-frenzy-list-item__main-title">{movie.title}</div>
-                    {movie.verse && (
-                      <div className="film-frenzy-list-item__subtitle">{movie.verse}</div>
-                    )}
-                  </div>
-                  <div className="film-frenzy-list-item__cell film-frenzy-list-item__genre">
-                    {movie.genres?.slice(0, 2).map((genre, idx) => (
-                      <span key={idx} className="film-frenzy-list-item__tag">
-                        {genre}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="film-frenzy-list-item__cell film-frenzy-list-item__imdb">
-                    {movie.imdb_rating ? `${movie.imdb_rating}/10` : '-'}
-                  </div>
-                  <div className="film-frenzy-list-item__cell film-frenzy-list-item__rating">
-                    <div className="film-frenzy-list-item__stars">
-                      {[...Array(5)].map((_, i) => (
-                        <Icon
-                          key={i}
-                          name={i < (movie.star_rating || 0) ? 'star' : 'star-outline'}
-                          size={14}
-                          className={i < (movie.star_rating || 0) ? 'star-filled' : 'star-empty'}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="film-frenzy-list-item__cell film-frenzy-list-item__actions">
-                    <button
-                      className="film-frenzy-list-item__action"
-                      onClick={() => handleMovieClick(movie)}
-                      title="View Details"
-                    >
-                      <Icon name="info" size={16} />
-                    </button>
-                    {movie.watch_download_link && (
-                      <button
-                        className="film-frenzy-list-item__action"
-                        onClick={() => window.open(movie.watch_download_link, '_blank')}
-                        title="Watch"
-                      >
-                        <Icon name="play" size={16} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
+            </>
+          )
+        ) : (
+          /* Table View */
+          <div className="film-frenzy-table-container">
+            <HobbyTable
+              items={deduplicatedMovies}
+              columns={tableColumns}
+              onItemClick={handleMovieClick}
+              onAction={handleAction}
+              emptyMessage="No movies found"
+              emptyIcon="play"
+            />
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Modal */}
       <VisualMediaModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        mode={modalMode}
         item={selectedMovie}
-        onSave={handleModalSave}
-        onDelete={handleModalDelete}
-        initialMode={modalMode}
-        fields={modalFields}
-        title="Movie"
+        onSave={handleSaveMovie}
+        onDelete={handleDeleteMovie}
+        type="movie"
+        fields={[
+          { name: 'title', label: 'Title', type: 'text', required: true },
+          { name: 'verse', label: 'Universe/Franchise', type: 'text' },
+          { name: 'part', label: 'Part/Chapter', type: 'text' },
+          { name: 'genres', label: 'Genres', type: 'tags' },
+          { name: 'language', label: 'Language', type: 'text' },
+          { name: 'date', label: 'Release Date', type: 'month' },
+          { name: 'imdb_rating', label: 'IMDB Rating', type: 'number', min: 0, max: 10, step: 0.1 },
+          { name: 'star_rating', label: 'Personal Rating', type: 'rating' },
+          { name: 'watch_download_link', label: 'Watch/Download Link', type: 'url' },
+          { name: 'poster_image_url', label: 'Poster Image', type: 'image' },
+          { name: 'comment', label: 'Comments', type: 'textarea' }
+        ]}
       />
     </div>
   )

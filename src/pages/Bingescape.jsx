@@ -1,87 +1,60 @@
 import React, { useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { motion } from 'framer-motion'
-import { useSelector, useDispatch } from 'react-redux'
 import { Icon } from '@components/atoms/Icon'
 import SearchBar from '@components/molecules/SearchBar'
 import ViewToggle from '@components/molecules/ViewToggle'
 import HeroCarousel from '@components/organisms/HeroCarousel'
 import ContentRow from '@components/organisms/ContentRow'
+import { HobbyTable } from '@components/organisms/HobbyTable'
 import VisualMediaModal from '@components/organisms/VisualMediaModal'
+import { setSeries, addSeries, updateSeries, removeSeries, setLoading, setError } from '@features/bingescape/bingescapeSlice'
 import { text } from '@constants/language'
+import { exportToExcel } from '@utils/exportUtils'
 import { supabase } from '@utils/supabase'
 import { useAuth } from '@hooks/useAuth'
-import { exportBooksToExcel } from '@utils/exportUtils'
-import { setLoading, setError } from '@features/bingescape/bingescapeSlice'
 import './Bingescape.css'
 
 const Bingescape = () => {
   const dispatch = useDispatch()
   const { user, isGuest, isOwner, isSuperAdmin } = useAuth()
-  const { loading } = useSelector(state => state.bingescape)
+  const { series, loading, error } = useSelector(state => state.bingescape)
   
-  const [shows, setShows] = useState([])
-  const [searchQuery, setSearchQuery] = useState('')
-  const [viewMode, setViewMode] = useState('grid')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
   const [selectedShow, setSelectedShow] = useState(null)
-  const [showModal, setShowModal] = useState(false)
-  const [modalMode, setModalMode] = useState('view')
-
-  // Field configuration for the modal
-  const modalFields = [
-    { key: 'title', label: 'Title', type: 'text', placeholder: 'Enter title...' },
-    { key: 'verse', label: 'Verse/Universe', type: 'text', placeholder: 'e.g., Marvel, DC, Standalone...' },
-    { key: 'description', label: 'Description', type: 'textarea', placeholder: 'Brief description...' },
-    { key: 'season', label: 'Season', type: 'text', placeholder: 'e.g., Season 1, Complete Series...' },
-    { key: 'genres', label: 'Genres', type: 'genres', placeholder: 'Action, Drama, Comedy (comma separated)' },
-    { key: 'language', label: 'Language', type: 'text', placeholder: 'English, Spanish, etc.' },
-    { key: 'start_date', label: 'Start Date', type: 'text', placeholder: 'MM/YY format' },
-    { key: 'end_date', label: 'End Date', type: 'text', placeholder: 'MM/YY format' },
-    { key: 'star_rating', label: 'Star Rating', type: 'number', placeholder: '1-5', min: 1, max: 5 },
-    { key: 'watch_download_link', label: 'Watch/Download Link', type: 'text', placeholder: 'https://...' },
-    { key: 'poster_image_url', label: 'Poster Image URL', type: 'text', placeholder: 'https://...' },
-    { key: 'comment', label: 'Comment', type: 'textarea', placeholder: 'Your thoughts...' }
-  ]
-
-  // Get user ID based on role
-  const getUserId = () => {
-    if (isSuperAdmin()) {
-      return null // Super admin can see all records
-    }
-    if (isOwner() && user?.id) {
-      return user.id
-    }
-    if (isGuest) {
-      // For guests, show owner's public records
-      return null // Placeholder for owner's UUID
-    }
-    return user?.id
-  }
+  const [modalMode, setModalMode] = useState('view') // 'view', 'add', 'edit'
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   // Fetch shows from database
   const fetchShows = async () => {
+    if (!user && !isGuest) return
+    
     dispatch(setLoading(true))
     try {
       let query = supabase.from('bingescape').select('*')
-
+      
+      // Apply user-specific filtering based on role
       if (isSuperAdmin()) {
+        // Super admin sees all records
         console.log('Fetching all shows for super admin')
       } else if (isOwner() && user?.id) {
+        // Owner sees only their records
         query = query.eq('user_id', user.id)
         console.log('Fetching shows for owner:', user.id)
       } else if (isGuest) {
+        // Guests see owner's public records
+        query = query.eq('user_id', 'OWNER_USER_ID_HERE') // Replace with actual owner UUID
         console.log('Fetching public shows for guest')
-        // TODO: Replace with actual owner's UUID
-        // query = query.eq('user_id', 'owner-uuid-here')
-      }
-
-      const { data, error } = await query.order('created_at', { ascending: false })
-
-      if (error) {
-        console.error('Error fetching shows:', error)
-        dispatch(setError(error.message))
       } else {
-        setShows(data || [])
+        query = query.eq('user_id', user?.id)
       }
+      
+      const { data, error } = await query.order('created_at', { ascending: false })
+      
+      if (error) throw error
+      
+      dispatch(setSeries(data || []))
     } catch (error) {
       console.error('Error fetching shows:', error)
       dispatch(setError(error.message))
@@ -94,354 +67,341 @@ const Bingescape = () => {
     fetchShows()
   }, [user, isGuest])
 
-  // Filter shows based on search
-  const filteredShows = shows.filter(show =>
-    show.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (show.verse && show.verse.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (show.description && show.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (show.genres && show.genres.some(genre => 
-      genre.toLowerCase().includes(searchQuery.toLowerCase())
-    ))
+  // Filter shows based on search term
+  const filteredShows = series.filter(show =>
+    show.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    show.verse?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    show.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    show.genres?.some(genre => genre.toLowerCase().includes(searchTerm.toLowerCase()))
   )
 
-  // Group shows by categories for content rows
-  const getShowsByGenre = (genre) => {
-    return filteredShows.filter(show => 
-      show.genres && show.genres.some(g => g.toLowerCase().includes(genre.toLowerCase()))
-    ).slice(0, 10)
-  }
+  // Remove duplicates for search results
+  const deduplicatedShows = searchTerm 
+    ? filteredShows.filter((show, index, self) => 
+        index === self.findIndex(s => s.id === show.id)
+      )
+    : filteredShows
 
-  const getShowsByVerse = (verse) => {
-    return filteredShows.filter(show => 
-      show.verse && show.verse.toLowerCase().includes(verse.toLowerCase())
-    ).slice(0, 10)
-  }
-
-  const getFeaturedShows = () => {
-    return filteredShows
-      .filter(show => show.star_rating >= 3)
-      .sort((a, b) => (b.star_rating || 0) - (a.star_rating || 0))
-      .slice(0, 5)
-  }
-
-  const getRecentShows = () => {
-    return filteredShows
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .slice(0, 10)
-  }
-
-  // Handle show interactions
   const handleShowClick = (show) => {
     setSelectedShow(show)
     setModalMode('view')
-    setShowModal(true)
-  }
-
-  const handlePlayShow = (show) => {
-    if (show.watch_download_link) {
-      window.open(show.watch_download_link, '_blank')
-    }
+    setIsModalOpen(true)
   }
 
   const handleAddShow = () => {
     setSelectedShow(null)
     setModalMode('add')
-    setShowModal(true)
+    setIsModalOpen(true)
   }
 
-  const handleModalSave = async (formData, mode) => {
-    try {
-      if (mode === 'add') {
-        const { data, error } = await supabase
-          .from('bingescape')
-          .insert([{ ...formData, user_id: user?.id }])
-          .select()
+  const handleEditShow = (show) => {
+    setSelectedShow(show)
+    setModalMode('edit')
+    setIsModalOpen(true)
+  }
 
-        if (error) throw error
-        setShows(prev => [data[0], ...prev])
-      } else {
+  const handleSaveShow = async (showData) => {
+    try {
+      dispatch(setLoading(true))
+      
+      if (modalMode === 'add') {
         const { data, error } = await supabase
           .from('bingescape')
-          .update(formData)
+          .insert([{ ...showData, user_id: user?.id }])
+          .select()
+        
+        if (error) throw error
+        if (data?.[0]) dispatch(addSeries(data[0]))
+      } else if (modalMode === 'edit') {
+        const { data, error } = await supabase
+          .from('bingescape')
+          .update(showData)
           .eq('id', selectedShow.id)
           .select()
-
+        
         if (error) throw error
-        setShows(prev => prev.map(show => 
-          show.id === selectedShow.id ? data[0] : show
-        ))
+        if (data?.[0]) dispatch(updateSeries(data[0]))
       }
-      return true
+      
+      setIsModalOpen(false)
+      setSelectedShow(null)
     } catch (error) {
       console.error('Error saving show:', error)
       dispatch(setError(error.message))
-      return false
+    } finally {
+      dispatch(setLoading(false))
     }
   }
 
-  const handleModalDelete = async (id) => {
+  const handleDeleteShow = async (showId) => {
     try {
+      dispatch(setLoading(true))
+      
       const { error } = await supabase
         .from('bingescape')
         .delete()
-        .eq('id', id)
-
+        .eq('id', showId)
+      
       if (error) throw error
-      setShows(prev => prev.filter(show => show.id !== id))
-      return true
+      
+      dispatch(removeSeries(showId))
+      setIsModalOpen(false)
+      setSelectedShow(null)
     } catch (error) {
       console.error('Error deleting show:', error)
       dispatch(setError(error.message))
-      return false
+    } finally {
+      dispatch(setLoading(false))
     }
   }
 
   const handleExport = () => {
-    if (filteredShows.length === 0) return
-    
-    const exportData = filteredShows.map(show => ({
-      Title: show.title,
-      Verse: show.verse || '',
-      Description: show.description || '',
-      Season: show.season || '',
-      Genres: show.genres ? show.genres.join(', ') : '',
-      Language: show.language || '',
-      'Start Date': show.start_date || '',
-      'End Date': show.end_date || '',
-      'Star Rating': show.star_rating || '',
-      'Watch Link': show.watch_download_link || '',
-      Comment: show.comment || ''
-    }))
-    
-    exportBooksToExcel(exportData, 'bingescape-export')
+    exportToExcel(filteredShows, 'bingescape_data')
   }
 
-  const handleViewChange = (newViewMode) => {
-    setViewMode(newViewMode)
-  }
-
-  // Content rows data
-  const contentRows = [
-    {
-      title: 'Featured Shows',
-      items: getFeaturedShows()
-    },
-    {
-      title: 'Recently Added',
-      items: getRecentShows()
-    },
-    {
-      title: 'Crime & Mystery',
-      items: getShowsByGenre('Crime')
-    },
-    {
-      title: 'Fantasy Adventures',
-      items: getShowsByGenre('Fantasy')
-    },
-    {
-      title: 'Marvel Universe',
-      items: getShowsByVerse('Marvel')
-    },
-    {
-      title: 'Comedy Series',
-      items: getShowsByGenre('Comedy')
+  const handleAction = (show, action) => {
+    switch (action) {
+      case 'view':
+        handleShowClick(show)
+        break
+      case 'edit':
+        handleEditShow(show)
+        break
+      default:
+        break
     }
-  ].filter(row => row.items.length > 0)
+  }
+
+  // Table columns configuration
+  const tableColumns = [
+    {
+      field: 'poster_image_url',
+      label: 'Poster',
+      type: 'image',
+      sortable: false,
+      width: '80px'
+    },
+    {
+      field: 'title',
+      label: 'Title',
+      type: 'text',
+      sortable: true,
+      width: 'auto'
+    },
+    {
+      field: 'verse',
+      label: 'Universe',
+      type: 'text',
+      sortable: true,
+      width: '150px'
+    },
+    {
+      field: 'genres',
+      label: 'Genres',
+      type: 'genres',
+      sortable: false,
+      width: '180px'
+    },
+    {
+      field: 'season',
+      label: 'Season',
+      type: 'text',
+      sortable: true,
+      width: '100px'
+    },
+    {
+      field: 'star_rating',
+      label: 'Rating',
+      type: 'rating',
+      sortable: true,
+      width: '120px'
+    },
+    {
+      field: 'created_at',
+      label: 'Added',
+      type: 'date',
+      sortable: true,
+      width: '120px'
+    },
+    {
+      field: 'actions',
+      label: 'Actions',
+      type: 'actions',
+      sortable: false,
+      width: '120px'
+    }
+  ]
+
+  // Group shows for grid view display
+  const featuredShows = deduplicatedShows
+    .filter(show => show.star_rating >= 4)
+    .sort((a, b) => (b.star_rating || 0) - (a.star_rating || 0))
+    .slice(0, 10)
+
+  const recentShows = deduplicatedShows
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 10)
+
+  const topGenres = ['Action', 'Drama', 'Comedy', 'Thriller', 'Fantasy', 'Sci-Fi']
+  const genreRows = topGenres.map(genre => ({
+    title: genre,
+    items: deduplicatedShows
+      .filter(show => show.genres?.includes(genre))
+      .sort((a, b) => (b.star_rating || 0) - (a.star_rating || 0))
+      .slice(0, 10)
+  })).filter(row => row.items.length > 0)
 
   if (loading) {
     return (
-      <div className="bingescape-page">
-        <div className="bingescape-loading">
-          <div className="loading-spinner"></div>
-          <p>Loading your shows...</p>
-        </div>
+      <div className="bingescape-loading">
+        <Icon name="loading" size={48} />
+        <p>Loading shows...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="bingescape-error">
+        <Icon name="warning" size={48} />
+        <p>Error loading shows: {error}</p>
       </div>
     )
   }
 
   return (
     <div className="bingescape-page">
-      {/* Hero Section */}
-      <HeroCarousel
-        items={getFeaturedShows()}
-        onPlay={handlePlayShow}
-        onInfo={handleShowClick}
-        onAdd={(show) => console.log('Add to list:', show)}
-      />
-
-      {/* Controls */}
-      <div className="bingescape-controls">
-        <div className="bingescape-controls__left">
-          <SearchBar
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            placeholder="Search shows, genres, or series..."
-            className="bingescape-search"
-          />
-          
-          <ViewToggle
-            currentView={viewMode}
-            onViewChange={handleViewChange}
-          />
+      {/* Header */}
+      <div className="bingescape-header">
+        <div className="bingescape-title">
+          <h1>{text.bingescape.title}</h1>
+          <p>{text.bingescape.description}</p>
         </div>
 
-        <div className="bingescape-controls__right">
-          <motion.button
-            className="bingescape-action bingescape-action--add"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={handleAddShow}
-            title="Add Show"
-          >
-            <Icon name="plus" size={20} />
-          </motion.button>
+        <div className="bingescape-actions">
+          <div className="bingescape-actions__left">
+            <SearchBar
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Search shows, series, documentaries..."
+              className="bingescape-search"
+            />
+          </div>
+          
+          <div className="bingescape-actions__right">
+            <ViewToggle mode={viewMode} onChange={setViewMode} />
+            
+            <button
+              className="bingescape-action-btn bingescape-action-btn--add"
+              onClick={handleAddShow}
+              title="Add Show"
+            >
+              <Icon name="plus" size={20} />
+            </button>
 
-          <motion.button
-            className="bingescape-action bingescape-action--upload"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => console.log('Bulk upload')}
-            title="Bulk Upload"
-          >
-            <Icon name="upload" size={16} />
-          </motion.button>
-
-          <motion.button
-            className="bingescape-action bingescape-action--export"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleExport}
-            disabled={filteredShows.length === 0}
-            title="Export to Excel"
-          >
-            <Icon name="file-excel" size={16} />
-          </motion.button>
+            <button
+              className="bingescape-action-btn bingescape-action-btn--export"
+              onClick={handleExport}
+              title="Export to Excel"
+            >
+              <Icon name="file-excel" size={20} />
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Content */}
-      {viewMode === 'grid' ? (
-        <div className="bingescape-content">
-          {filteredShows.length === 0 ? (
-            <div className="bingescape-empty">
-              <Icon name="play" size={64} />
-              <h3>No shows found</h3>
-              <p>Start building your binge-watching collection!</p>
-            </div>
-          ) : searchQuery ? (
-            // When searching, show results without categories
-            <ContentRow
-              title={`Search Results for "${searchQuery}"`}
-              items={filteredShows.slice(0, 20)} // Limit search results
-              onItemClick={handleShowClick}
-              itemType="poster"
-            />
-          ) : (
-            // When not searching, show organized content rows
-            contentRows.map((row, index) => (
+      <div className="bingescape-content">
+        {viewMode === 'grid' ? (
+          searchTerm ? (
+            /* Search Results */
+            <div className="bingescape-search-results">
+              <h2>Search Results ({deduplicatedShows.length})</h2>
               <ContentRow
-                key={index}
-                title={row.title}
-                items={row.items}
+                title="Results"
+                items={deduplicatedShows}
                 onItemClick={handleShowClick}
-                itemType="poster"
+                showTitle={false}
               />
-            ))
-          )}
-        </div>
-      ) : (
-        /* List View */
-        <div className="bingescape-list">
-          <div className="bingescape-list-header">
-            <div className="bingescape-list-header__cell">Poster</div>
-            <div className="bingescape-list-header__cell">Title</div>
-            <div className="bingescape-list-header__cell">Genre</div>
-            <div className="bingescape-list-header__cell">Season</div>
-            <div className="bingescape-list-header__cell">Rating</div>
-            <div className="bingescape-list-header__cell">Actions</div>
-          </div>
-          <div className="bingescape-list-body">
-            {filteredShows.length === 0 ? (
-              <div className="bingescape-list-empty">
-                <Icon name="play" size={48} />
-                <p>No shows found</p>
+            </div>
+          ) : (
+            /* Regular Grid View */
+            <>
+              {/* Hero Carousel */}
+              {featuredShows.length > 0 && (
+                <HeroCarousel
+                  items={featuredShows.slice(0, 5)}
+                  onItemClick={handleShowClick}
+                />
+              )}
+
+              {/* Content Rows */}
+              <div className="bingescape-rows">
+                {recentShows.length > 0 && (
+                  <ContentRow
+                    title="Recently Added"
+                    items={recentShows}
+                    onItemClick={handleShowClick}
+                  />
+                )}
+
+                {featuredShows.length > 0 && (
+                  <ContentRow
+                    title="Highly Rated"
+                    items={featuredShows}
+                    onItemClick={handleShowClick}
+                  />
+                )}
+
+                {genreRows.map((row, index) => (
+                  <ContentRow
+                    key={row.title}
+                    title={row.title}
+                    items={row.items}
+                    onItemClick={handleShowClick}
+                  />
+                ))}
               </div>
-            ) : (
-              filteredShows.map((show, index) => (
-                <div key={show.id} className="bingescape-list-item">
-                  <div className="bingescape-list-item__cell bingescape-list-item__poster">
-                    <img
-                      src={show.poster_image_url}
-                      alt={show.title}
-                      className="bingescape-list-item__image"
-                      onError={(e) => {
-                        e.target.src = `https://source.unsplash.com/random/100x150/?${show.genres?.[0] || 'series'},${show.title.replace(/\s/g, '')}&sig=${show.id}`
-                      }}
-                    />
-                  </div>
-                  <div className="bingescape-list-item__cell bingescape-list-item__title">
-                    <div className="bingescape-list-item__main-title">{show.title}</div>
-                    {show.verse && (
-                      <div className="bingescape-list-item__subtitle">{show.verse}</div>
-                    )}
-                  </div>
-                  <div className="bingescape-list-item__cell bingescape-list-item__genre">
-                    {show.genres?.slice(0, 2).map((genre, idx) => (
-                      <span key={idx} className="bingescape-list-item__tag">
-                        {genre}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="bingescape-list-item__cell bingescape-list-item__season">
-                    {show.season || '-'}
-                  </div>
-                  <div className="bingescape-list-item__cell bingescape-list-item__rating">
-                    <div className="bingescape-list-item__stars">
-                      {[...Array(5)].map((_, i) => (
-                        <Icon
-                          key={i}
-                          name={i < (show.star_rating || 0) ? 'star' : 'star-outline'}
-                          size={14}
-                          className={i < (show.star_rating || 0) ? 'star-filled' : 'star-empty'}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="bingescape-list-item__cell bingescape-list-item__actions">
-                    <button
-                      className="bingescape-list-item__action"
-                      onClick={() => handleShowClick(show)}
-                      title="View Details"
-                    >
-                      <Icon name="info" size={16} />
-                    </button>
-                    {show.watch_download_link && (
-                      <button
-                        className="bingescape-list-item__action"
-                        onClick={() => window.open(show.watch_download_link, '_blank')}
-                        title="Watch"
-                      >
-                        <Icon name="play" size={16} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
+            </>
+          )
+        ) : (
+          /* Table View */
+          <div className="bingescape-table-container">
+            <HobbyTable
+              items={deduplicatedShows}
+              columns={tableColumns}
+              onItemClick={handleShowClick}
+              onAction={handleAction}
+              emptyMessage="No shows found"
+              emptyIcon="play"
+            />
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Modal */}
       <VisualMediaModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        mode={modalMode}
         item={selectedShow}
-        onSave={handleModalSave}
-        onDelete={handleModalDelete}
-        initialMode={modalMode}
-        fields={modalFields}
-        title="Show"
+        onSave={handleSaveShow}
+        onDelete={handleDeleteShow}
+        type="show"
+        fields={[
+          { name: 'title', label: 'Title', type: 'text', required: true },
+          { name: 'verse', label: 'Universe/Franchise', type: 'text' },
+          { name: 'description', label: 'Description', type: 'textarea' },
+          { name: 'season', label: 'Season', type: 'text' },
+          { name: 'genres', label: 'Genres', type: 'tags' },
+          { name: 'language', label: 'Language', type: 'text' },
+          { name: 'start_date', label: 'Start Date', type: 'month' },
+          { name: 'end_date', label: 'End Date', type: 'month' },
+          { name: 'star_rating', label: 'Rating', type: 'rating' },
+          { name: 'watch_download_link', label: 'Watch/Download Link', type: 'url' },
+          { name: 'poster_image_url', label: 'Poster Image', type: 'image' },
+          { name: 'comment', label: 'Comments', type: 'textarea' }
+        ]}
       />
     </div>
   )

@@ -154,6 +154,166 @@ export const exportBooksToJSON = (books, filename = 'my_books') => {
 }
 
 /**
+ * Generic export function for any hobby data to Excel
+ * @param {Array} data - Array of objects to export
+ * @param {string} filename - Output filename (without extension)
+ * @param {string} sheetName - Worksheet name
+ * @returns {Object} Result object
+ */
+export const exportToExcel = (data, filename = 'hobby_data', sheetName = 'Data') => {
+  try {
+    if (!data || data.length === 0) {
+      return { success: false, error: 'No data to export' }
+    }
+
+    // Get all unique keys from the data
+    const allKeys = new Set()
+    data.forEach(item => {
+      Object.keys(item).forEach(key => {
+        if (key !== 'user_id') { // Exclude user_id for privacy
+          allKeys.add(key)
+        }
+      })
+    })
+
+    // Create formatted export data
+    const exportData = data.map(item => {
+      const formattedItem = {}
+      allKeys.forEach(key => {
+        const value = item[key]
+        
+        // Format the field name for display
+        const displayKey = key
+          .replace(/_/g, ' ')
+          .replace(/\b\w/g, l => l.toUpperCase())
+        
+        // Format the value based on type
+        if (Array.isArray(value)) {
+          formattedItem[displayKey] = value.join(', ')
+        } else if (key.includes('date') && value) {
+          formattedItem[displayKey] = new Date(value).toLocaleDateString()
+        } else {
+          formattedItem[displayKey] = value || ''
+        }
+      })
+      return formattedItem
+    })
+
+    // Create workbook and worksheet
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.json_to_sheet(exportData)
+
+    // Set column widths
+    const colCount = Object.keys(exportData[0] || {}).length
+    const colWidths = Array(colCount).fill({ wch: 20 })
+    ws['!cols'] = colWidths
+
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, sheetName)
+
+    // Generate file and download
+    const timestamp = new Date().toISOString().split('T')[0]
+    XLSX.writeFile(wb, `${filename}_${timestamp}.xlsx`)
+
+    return { success: true, message: `Exported ${data.length} records successfully` }
+  } catch (error) {
+    console.error('Export error:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+/**
+ * Generic export function for any hobby data to CSV
+ * @param {Array} data - Array of objects to export
+ * @param {string} filename - Output filename (without extension)
+ * @returns {Object} Result object
+ */
+export const exportToCSV = (data, filename = 'hobby_data') => {
+  try {
+    if (!data || data.length === 0) {
+      return { success: false, error: 'No data to export' }
+    }
+
+    // Get all unique keys from the data
+    const allKeys = new Set()
+    data.forEach(item => {
+      Object.keys(item).forEach(key => {
+        if (key !== 'user_id') { // Exclude user_id for privacy
+          allKeys.add(key)
+        }
+      })
+    })
+
+    const headers = Array.from(allKeys).map(key => 
+      key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    )
+
+    // Prepare CSV rows
+    const csvRows = []
+    csvRows.push(headers.join(','))
+
+    data.forEach(item => {
+      const row = Array.from(allKeys).map(key => {
+        const value = item[key]
+        let formattedValue = ''
+        
+        if (Array.isArray(value)) {
+          formattedValue = value.join('; ')
+        } else if (key.includes('date') && value) {
+          formattedValue = new Date(value).toLocaleDateString()
+        } else {
+          formattedValue = value || ''
+        }
+        
+        return escapeCSVValue(formattedValue)
+      })
+      csvRows.push(row.join(','))
+    })
+
+    // Create and download file
+    const csvContent = csvRows.join('\n')
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const timestamp = new Date().toISOString().split('T')[0]
+    downloadBlob(blob, `${filename}_${timestamp}.csv`)
+
+    return { success: true, message: `Exported ${data.length} records successfully` }
+  } catch (error) {
+    console.error('Export error:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+/**
+ * Generic export function for any hobby data to JSON
+ * @param {Array} data - Array of objects to export
+ * @param {string} filename - Output filename (without extension)
+ * @returns {Object} Result object
+ */
+export const exportToJSON = (data, filename = 'hobby_data') => {
+  try {
+    if (!data || data.length === 0) {
+      return { success: false, error: 'No data to export' }
+    }
+
+    // Clean up the data for export (remove user_id for privacy)
+    const exportData = data.map(item => {
+      const { user_id: _userId, ...cleanData } = item
+      return cleanData
+    })
+
+    const jsonContent = JSON.stringify(exportData, null, 2)
+    const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' })
+    const timestamp = new Date().toISOString().split('T')[0]
+    downloadBlob(blob, `${filename}_${timestamp}.json`)
+
+    return { success: true, message: `Exported ${data.length} records successfully` }
+  } catch (error) {
+    console.error('Export error:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+/**
  * Helper function to escape CSV values
  * @param {string} value - Value to escape
  * @returns {string} Escaped value

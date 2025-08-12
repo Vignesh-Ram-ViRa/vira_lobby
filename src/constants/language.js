@@ -34,18 +34,18 @@ export const text = {
   categories: {
     bookworm: {
       title: "Bookworm",
-      description: "Books & Reading Collection",
+      description: "Books Collection",
       emptyState: "No books added yet. Start building your digital library!"
     },
     bingescape: {
-      title: "Bingescape", 
-      description: "Web Series & TV Shows",
-      emptyState: "No series added yet. Track your binge-watching journey!"
+      title: "Bingescape",
+      description: "Web Series Collection",
+      emptyState: "No shows added yet. Start your binge-watching journey!"
     },
     filmFrenzy: {
-      title: "Film Frenzy",
+      title: "Film Frenzy", 
       description: "Movies Collection",
-      emptyState: "No movies added yet. Start your cinematic catalog!"
+      emptyState: "No movies added yet. Build your cinematic library!"
     },
     otakuHub: {
       title: "Otaku Hub",
