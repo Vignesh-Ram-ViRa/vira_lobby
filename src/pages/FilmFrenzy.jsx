@@ -354,9 +354,85 @@ const FilmFrenzy = () => {
           )}
         </div>
       ) : (
+        /* List View */
         <div className="film-frenzy-list">
-          {/* TODO: Implement list view similar to Bookworm */}
-          <p>List view coming soon...</p>
+          <div className="film-frenzy-list-header">
+            <div className="film-frenzy-list-header__cell">Poster</div>
+            <div className="film-frenzy-list-header__cell">Title</div>
+            <div className="film-frenzy-list-header__cell">Genre</div>
+            <div className="film-frenzy-list-header__cell">IMDB</div>
+            <div className="film-frenzy-list-header__cell">Rating</div>
+            <div className="film-frenzy-list-header__cell">Actions</div>
+          </div>
+          <div className="film-frenzy-list-body">
+            {filteredMovies.length === 0 ? (
+              <div className="film-frenzy-list-empty">
+                <Icon name="play" size={48} />
+                <p>No movies found</p>
+              </div>
+            ) : (
+              filteredMovies.map((movie, index) => (
+                <div key={movie.id} className="film-frenzy-list-item">
+                  <div className="film-frenzy-list-item__cell film-frenzy-list-item__poster">
+                    <img
+                      src={movie.poster_image_url}
+                      alt={movie.title}
+                      className="film-frenzy-list-item__image"
+                      onError={(e) => {
+                        e.target.src = `https://source.unsplash.com/random/100x150/?${movie.genres?.[0] || 'movie'},${movie.title.replace(/\s/g, '')}&sig=${movie.id}`
+                      }}
+                    />
+                  </div>
+                  <div className="film-frenzy-list-item__cell film-frenzy-list-item__title">
+                    <div className="film-frenzy-list-item__main-title">{movie.title}</div>
+                    {movie.verse && (
+                      <div className="film-frenzy-list-item__subtitle">{movie.verse}</div>
+                    )}
+                  </div>
+                  <div className="film-frenzy-list-item__cell film-frenzy-list-item__genre">
+                    {movie.genres?.slice(0, 2).map((genre, idx) => (
+                      <span key={idx} className="film-frenzy-list-item__tag">
+                        {genre}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="film-frenzy-list-item__cell film-frenzy-list-item__imdb">
+                    {movie.imdb_rating ? `${movie.imdb_rating}/10` : '-'}
+                  </div>
+                  <div className="film-frenzy-list-item__cell film-frenzy-list-item__rating">
+                    <div className="film-frenzy-list-item__stars">
+                      {[...Array(5)].map((_, i) => (
+                        <Icon
+                          key={i}
+                          name={i < (movie.star_rating || 0) ? 'star' : 'star-outline'}
+                          size={14}
+                          className={i < (movie.star_rating || 0) ? 'star-filled' : 'star-empty'}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="film-frenzy-list-item__cell film-frenzy-list-item__actions">
+                    <button
+                      className="film-frenzy-list-item__action"
+                      onClick={() => handleMovieClick(movie)}
+                      title="View Details"
+                    >
+                      <Icon name="info" size={16} />
+                    </button>
+                    {movie.watch_download_link && (
+                      <button
+                        className="film-frenzy-list-item__action"
+                        onClick={() => window.open(movie.watch_download_link, '_blank')}
+                        title="Watch"
+                      >
+                        <Icon name="play" size={16} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       )}
 

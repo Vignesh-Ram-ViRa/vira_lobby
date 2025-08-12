@@ -59,8 +59,8 @@ export const AuthProvider = ({ children }) => {
           setUser(session?.user ?? null)
           setLoading(false)
           
-          // Start session timer if user is logged in
-          if (session?.user) {
+          // Start session timer if user is logged in (but not guest)
+          if (session?.user && !isGuest) {
             startSessionTimer()
           }
         }
@@ -83,11 +83,12 @@ export const AuthProvider = ({ children }) => {
           setLoading(false)
           
           // Clear guest mode when user logs in
-          if (session?.user) {
+          if (session?.user && event === 'SIGNED_IN') {
             setIsGuest(false)
             startSessionTimer()
-          } else {
+          } else if (!session?.user && event === 'SIGNED_OUT') {
             clearSessionTimer()
+            setIsGuest(false)
           }
         }
       }
@@ -100,30 +101,35 @@ export const AuthProvider = ({ children }) => {
       resetSessionTimer()
     }
 
+    // Add activity listeners
     activityEvents.forEach(event => {
       document.addEventListener(event, handleUserActivity, { passive: true })
     })
 
-    // Handle page visibility change (tab switching)
+    // Only handle visibility change for tab close/minimize, not for refresh
     const handleVisibilityChange = () => {
-      if (document.hidden) {
-        // Page is hidden (tab switched, minimized, etc.)
-        console.log('Page hidden - maintaining session')
-      } else {
-        // Page is visible again
+      if (document.hidden && (user && !isGuest)) {
+        // User switched away from tab, but don't logout immediately
+        // Session timer will continue running
+        console.log('Tab hidden - session timer continues')
+      } else if (!document.hidden && (user && !isGuest)) {
+        // Tab visible again, reset timer
+        console.log('Tab visible - resetting session timer')
         resetSessionTimer()
       }
     }
 
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-
-    // Handle beforeunload (tab/window close)
+    // Handle beforeunload (browser/tab close)
     const handleBeforeUnload = () => {
-      // Note: In modern browsers, you can't make async calls here
-      // The session will expire naturally due to timeout
-      clearSessionTimer()
+      if (user && !isGuest) {
+        // Clear the session when closing browser/tab
+        console.log('Browser/tab closing - clearing session')
+        localStorage.removeItem('supabase.auth.token')
+        sessionStorage.clear()
+      }
     }
 
+    document.addEventListener('visibilitychange', handleVisibilityChange)
     window.addEventListener('beforeunload', handleBeforeUnload)
 
     return () => {
@@ -131,14 +137,15 @@ export const AuthProvider = ({ children }) => {
       subscription.unsubscribe()
       clearSessionTimer()
       
-      // Clean up event listeners
+      // Remove activity listeners
       activityEvents.forEach(event => {
         document.removeEventListener(event, handleUserActivity)
       })
+      
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }
-  }, [])
+  }, []) // Remove isGuest dependency to prevent re-initialization
 
   // Sign in function
   const signIn = async (email, password) => {

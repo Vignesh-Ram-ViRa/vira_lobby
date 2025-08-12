@@ -361,9 +361,85 @@ const OtakuHub = () => {
           )}
         </div>
       ) : (
+        /* List View */
         <div className="otaku-hub-list">
-          {/* TODO: Implement list view similar to Bookworm */}
-          <p>List view coming soon...</p>
+          <div className="otaku-hub-list-header">
+            <div className="otaku-hub-list-header__cell">Poster</div>
+            <div className="otaku-hub-list-header__cell">Title</div>
+            <div className="otaku-hub-list-header__cell">Genre</div>
+            <div className="otaku-hub-list-header__cell">Season</div>
+            <div className="otaku-hub-list-header__cell">Rating</div>
+            <div className="otaku-hub-list-header__cell">Actions</div>
+          </div>
+          <div className="otaku-hub-list-body">
+            {filteredAnime.length === 0 ? (
+              <div className="otaku-hub-list-empty">
+                <Icon name="play" size={48} />
+                <p>No anime found</p>
+              </div>
+            ) : (
+              filteredAnime.map((show, index) => (
+                <div key={show.id} className="otaku-hub-list-item">
+                  <div className="otaku-hub-list-item__cell otaku-hub-list-item__poster">
+                    <img
+                      src={show.poster_image_url}
+                      alt={show.title}
+                      className="otaku-hub-list-item__image"
+                      onError={(e) => {
+                        e.target.src = `https://source.unsplash.com/random/100x150/?${show.genres?.[0] || 'anime'},${show.title.replace(/\s/g, '')}&sig=${show.id}`
+                      }}
+                    />
+                  </div>
+                  <div className="otaku-hub-list-item__cell otaku-hub-list-item__title">
+                    <div className="otaku-hub-list-item__main-title">{show.title}</div>
+                    {show.verse && (
+                      <div className="otaku-hub-list-item__subtitle">{show.verse}</div>
+                    )}
+                  </div>
+                  <div className="otaku-hub-list-item__cell otaku-hub-list-item__genre">
+                    {show.genres?.slice(0, 2).map((genre, idx) => (
+                      <span key={idx} className="otaku-hub-list-item__tag">
+                        {genre}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="otaku-hub-list-item__cell otaku-hub-list-item__season">
+                    {show.season || '-'}
+                  </div>
+                  <div className="otaku-hub-list-item__cell otaku-hub-list-item__rating">
+                    <div className="otaku-hub-list-item__stars">
+                      {[...Array(5)].map((_, i) => (
+                        <Icon
+                          key={i}
+                          name={i < (show.star_rating || 0) ? 'star' : 'star-outline'}
+                          size={14}
+                          className={i < (show.star_rating || 0) ? 'star-filled' : 'star-empty'}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="otaku-hub-list-item__cell otaku-hub-list-item__actions">
+                    <button
+                      className="otaku-hub-list-item__action"
+                      onClick={() => handleAnimeClick(show)}
+                      title="View Details"
+                    >
+                      <Icon name="info" size={16} />
+                    </button>
+                    {show.watch_download_link && (
+                      <button
+                        className="otaku-hub-list-item__action"
+                        onClick={() => window.open(show.watch_download_link, '_blank')}
+                        title="Watch"
+                      >
+                        <Icon name="play" size={16} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       )}
 

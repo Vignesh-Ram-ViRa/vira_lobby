@@ -532,54 +532,107 @@
   }
 }
 
+/* Mobile Responsive */
 @media (max-width: 768px) {
-  .bookworm-page {
+  .bookworm-container {
+    width: 95%; /* Increased from 80% for mobile */
+    padding: 0 0.5rem;
+  }
+
+  .bookworm-actions {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .bookworm-actions__left {
+    width: 100%;
+  }
+
+  .bookworm-actions__right {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .bookworm-search {
+    width: 100%;
+  }
+
+  .bookworm-shelf {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
     padding: 1rem;
   }
-  
-  .bookworm-fab {
-    display: flex;
-    align-items: center;
+
+  .book-cover {
+    height: 160px;
+  }
+
+  .book-cover__title {
+    font-size: 0.75rem;
+    line-height: 1.2;
+  }
+
+  .book-cover__authors {
+    font-size: 0.65rem;
+  }
+
+  /* List view mobile adjustments */
+  .bookworm-list-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .bookworm-list-item__image {
+    width: 60px;
+    height: 80px;
+    align-self: center;
+  }
+
+  .bookworm-list-item__content {
+    width: 100%;
+    text-align: center;
+  }
+
+  .bookworm-list-item__actions {
+    width: 100%;
     justify-content: center;
-  }
-  
-  .bookshelf__books {
-    gap: 0.125rem;
-  }
-  
-  .book-spine {
-    width: 2rem;
-  }
-  
-  .book-spine__title {
-    font-size: 0.6rem;
-  }
-  
-  .book-spine__author {
-    font-size: 0.5rem;
   }
 }
 
 @media (max-width: 480px) {
-  .bookworm-stats {
-    flex-direction: column;
-    gap: 1rem;
+  .bookworm-container {
+    width: 98%; /* Almost full width on very small screens */
+    padding: 0 0.25rem;
   }
-  
-  .bookworm-actions {
-    flex-direction: column;
+
+  .bookworm-shelf {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.75rem;
+    padding: 0.75rem;
   }
-  
-  .bookshelf {
-    padding: 1rem;
+
+  .book-cover {
+    height: 140px;
   }
-  
-  .book-spine {
-    width: 1.75rem;
+
+  .book-cover__title {
+    font-size: 0.7rem;
   }
-  
-  .book-spine__content {
-    padding: 0.75rem 0.25rem;
+
+  .book-cover__authors {
+    font-size: 0.6rem;
+  }
+
+  .bookworm-title h1 {
+    font-size: 1.75rem;
+  }
+
+  .bookworm-title p {
+    font-size: 0.9rem;
   }
 }
 

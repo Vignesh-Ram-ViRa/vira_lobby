@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Icon } from '@components/atoms/Icon'
 import Button from '@components/atoms/Button'
+import ImageUpload from '@components/molecules/ImageUpload'
 import { text } from '@constants/language'
 import './VisualMediaModal.css'
 
@@ -49,6 +50,12 @@ const VisualMediaModal = ({
         [field]: null
       }))
     }
+  }
+
+  const handleImageUpload = (imageUrl) => {
+    // Update the appropriate image field based on the item type
+    const imageField = formData.poster_image_url !== undefined ? 'poster_image_url' : 'cover_image_url'
+    handleInputChange(imageField, imageUrl)
   }
 
   const handleGenreChange = (value) => {
@@ -207,20 +214,13 @@ const VisualMediaModal = ({
           {/* Modal Content */}
           <div className="visual-media-modal__content">
             <div className="visual-media-modal__layout">
-              {/* Cover Image */}
+              {/* Image Upload */}
               <div className="visual-media-modal__image">
-                <img
-                  src={formData.poster_image_url || formData.cover_image_url}
-                  alt={formData.title}
-                  onError={(e) => {
-                    e.target.style.display = 'none'
-                    e.target.nextElementSibling.style.display = 'flex'
-                  }}
+                <ImageUpload
+                  currentImageUrl={formData.poster_image_url || formData.cover_image_url || ''}
+                  onImageUpload={handleImageUpload}
+                  disabled={mode === 'view'}
                 />
-                <div className="visual-media-modal__image-fallback">
-                  <Icon name="play" size={48} />
-                  <span>No Image</span>
-                </div>
               </div>
 
               {/* Form Fields */}

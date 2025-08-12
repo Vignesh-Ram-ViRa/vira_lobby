@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Icon } from '@components/atoms/Icon'
 import ThemeToggle from '@components/molecules/ThemeToggle'
@@ -9,6 +9,22 @@ const MainLayout = ({ children }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarExpanded, setSidebarExpanded] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768
+      setIsMobile(mobile)
+      if (!mobile) {
+        setMobileMenuOpen(false)
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const navigationItems = [
     { path: '/', icon: 'dashboard', label: 'Dashboard' },
@@ -32,17 +48,34 @@ const MainLayout = ({ children }) => {
 
   const handleNavigation = (path) => {
     navigate(path)
+    setMobileMenuOpen(false) // Close mobile menu after navigation
+  }
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen)
   }
 
   return (
     <div className="main-layout">
       <header className="main-layout__header">
-        <div className="header__logo">
-          <span className="logo__text">
-            ViRa's Lobby
-            {currentPage && <span className="logo__page"> - {currentPage}</span>}
-          </span>
+        <div className="header__left">
+          {/* Mobile Hamburger Menu */}
+          {isMobile && (
+            <button 
+              className="header__hamburger"
+              onClick={toggleMobileMenu}
+              aria-label="Toggle menu"
+            >
+              <Icon name={mobileMenuOpen ? 'x' : 'menu'} size={24} />
+            </button>
+          )}
+          
+          <div className="header__logo">
+            <div className="logo__text">ViRa's Lobby</div>
+            {currentPage && <div className="header__page-title">{currentPage}</div>}
+          </div>
         </div>
+        
         <div className="header__actions">
           <button 
             className="header__action"
@@ -55,24 +88,32 @@ const MainLayout = ({ children }) => {
           <ProfileDropdown />
         </div>
       </header>
+
+      {/* Mobile Menu Overlay */}
+      {isMobile && mobileMenuOpen && (
+        <div 
+          className="mobile-menu-overlay"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
       
       <aside 
-        className={`main-layout__sidebar ${sidebarExpanded ? 'sidebar--expanded' : ''}`}
-        onMouseEnter={() => setSidebarExpanded(true)}
-        onMouseLeave={() => setSidebarExpanded(false)}
+        className={`main-layout__sidebar ${sidebarExpanded ? 'sidebar--expanded' : ''} ${mobileMenuOpen ? 'sidebar--mobile-open' : ''}`}
+        onMouseEnter={() => !isMobile && setSidebarExpanded(true)}
+        onMouseLeave={() => !isMobile && setSidebarExpanded(false)}
       >
         <nav className="sidebar__nav">
           {navigationItems.map((item) => (
             <div
               key={item.path}
-              className={`nav__item ${location.pathname === item.path ? 'nav__item--active' : ''}`}
+              className={`sidebar__nav-item ${location.pathname === item.path ? 'active' : ''}`}
               onClick={() => handleNavigation(item.path)}
               title={item.label}
             >
-              <div className="nav__icon">
+              <div className="sidebar__nav-icon">
                 <Icon name={item.icon} size={20} />
               </div>
-              <span className="nav__label">{item.label}</span>
+              <span className="sidebar__nav-text">{item.label}</span>
             </div>
           ))}
         </nav>

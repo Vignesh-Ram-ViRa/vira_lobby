@@ -15,15 +15,15 @@ const Login = () => {
   const [isRegisterMode, setIsRegisterMode] = useState(false)
   const [useMagicLink, setUseMagicLink] = useState(false)
 
-  const { signIn, signUp, continueAsGuest, isAuthenticated, loading: authLoading } = useAuth()
+  const { signIn, signUp, signInWithMagicLink, enterGuest, user, loading: authLoading } = useAuth()
   const navigate = useNavigate()
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated && !authLoading) {
+    if (user && !authLoading) {
       navigate('/')
     }
-  }, [isAuthenticated, authLoading, navigate])
+  }, [user, authLoading, navigate])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -35,15 +35,13 @@ const Login = () => {
 
     try {
       if (useMagicLink) {
-        // Magic link functionality would go here
-        setSuccess('Magic link functionality not implemented yet.')
+        await signInWithMagicLink(email)
+        setSuccess('Magic link sent! Check your email to complete the login.')
       } else if (isRegisterMode) {
-        const { error } = await signUp(email, password)
-        if (error) throw error
+        await signUp(email, password, { display_name: email.split('@')[0] })
         setSuccess('Account created! Check your email to verify your account.')
       } else {
-        const { error } = await signIn(email, password)
-        if (error) throw error
+        await signIn(email, password)
         navigate('/')
       }
     } catch (err) {
@@ -56,7 +54,7 @@ const Login = () => {
 
   const handleGuestMode = () => {
     try {
-      continueAsGuest()
+      enterGuest()
       navigate('/')
     } catch (err) {
       console.error('Guest mode error:', err)
@@ -81,7 +79,7 @@ const Login = () => {
     return (
       <div className="login-page">
         <div className="login-loading">
-          <Icon name="loading" className="loading-icon" />
+          <div className="loading-spinner"></div>
           <span>Loading...</span>
         </div>
       </div>
@@ -91,141 +89,143 @@ const Login = () => {
   return (
     <div className="login-page">
       <div className="login-container">
-        {/* Header */}
-        <div className="login-header">
-          <h1 className="login-title">
-            {isRegisterMode ? 'Create Account' : 'Welcome Back'}
-          </h1>
-          <p className="login-subtitle">
-            {isRegisterMode 
-              ? 'Join ViRa\'s Lobby to manage your hobbies' 
-              : 'Sign in to access your hobby dashboard'
-            }
-          </p>
-        </div>
-
-        {/* Guest Mode Button */}
-        <div className="guest-mode-section">
-          <Button
-            variant="secondary"
-            onClick={handleGuestMode}
-            icon={<Icon name="organization" />}
-            className="guest-mode-btn"
-          >
-            Continue as Guest
-          </Button>
-          <p className="guest-mode-note">
-            Browse hobbies without creating an account
-          </p>
-        </div>
-
-        <div className="login-divider">
-          <span>or</span>
-        </div>
-
-        {/* Auth Form */}
-        <form className="login-form" onSubmit={handleSubmit}>
-          {/* Email Field */}
-          <div className="form-group">
-            <label htmlFor="email" className="form-label">
-              Email Address
-            </label>
-            <div className="form-input-wrapper">
-              <Icon name="mail" className="form-input-icon" />
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                className="form-input"
-                required
-                disabled={isLoading}
-              />
-            </div>
+        <div className="login-card">
+          {/* Header */}
+          <div className="login-header">
+            <h1 className="login-title">
+              {isRegisterMode ? 'Create Account' : 'Welcome Back'}
+            </h1>
+            <p className="login-subtitle">
+              {isRegisterMode 
+                ? 'Join ViRa\'s Lobby to manage your hobbies' 
+                : 'Sign in to access your hobby dashboard'
+              }
+            </p>
           </div>
 
-          {/* Password Field (hidden for magic link) */}
-          {!useMagicLink && (
+          {/* Guest Mode Button */}
+          <div className="guest-mode-section">
+            <Button
+              variant="secondary"
+              onClick={handleGuestMode}
+              icon={<Icon name="user" size={18} />}
+              className="guest-mode-btn"
+            >
+              Continue as Guest
+            </Button>
+            <p className="guest-mode-note">
+              Browse public hobby collections without creating an account
+            </p>
+          </div>
+
+          <div className="login-divider">
+            <span>or</span>
+          </div>
+
+          {/* Auth Form */}
+          <form className="login-form" onSubmit={handleSubmit}>
+            {/* Email Field */}
             <div className="form-group">
-              <label htmlFor="password" className="form-label">
-                Password
+              <label htmlFor="email" className="form-label">
+                Email Address
               </label>
               <div className="form-input-wrapper">
-                <Icon name="lock" className="form-input-icon" />
+                <Icon name="mail" size={18} className="form-input-icon" />
                 <input
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
                   className="form-input"
                   required
                   disabled={isLoading}
-                  minLength={isRegisterMode ? 6 : undefined}
                 />
               </div>
             </div>
-          )}
 
-          {/* Error/Success Messages */}
-          {error && (
-            <div className="form-message form-message--error">
-              <Icon name="warning" />
-              <span>{error}</span>
-            </div>
-          )}
+            {/* Password Field (hidden for magic link) */}
+            {!useMagicLink && (
+              <div className="form-group">
+                <label htmlFor="password" className="form-label">
+                  Password
+                </label>
+                <div className="form-input-wrapper">
+                  <Icon name="lock" size={18} className="form-input-icon" />
+                  <input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    className="form-input"
+                    required
+                    disabled={isLoading}
+                    minLength={isRegisterMode ? 6 : undefined}
+                  />
+                </div>
+              </div>
+            )}
 
-          {success && (
-            <div className="form-message form-message--success">
-              <Icon name="check" />
-              <span>{success}</span>
-            </div>
-          )}
+            {/* Error/Success Messages */}
+            {error && (
+              <div className="form-message form-message--error">
+                <Icon name="warning" size={16} />
+                <span>{error}</span>
+              </div>
+            )}
 
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            variant="primary"
-            loading={isLoading}
-            disabled={!email || (!useMagicLink && !password)}
-            className="login-submit-btn"
-            icon={useMagicLink ? <Icon name="mail" /> : <Icon name="sign-in" />}
-          >
-            {useMagicLink 
-              ? 'Send Magic Link' 
-              : isRegisterMode 
-                ? 'Create Account' 
-                : 'Sign In'
-            }
-          </Button>
+            {success && (
+              <div className="form-message form-message--success">
+                <Icon name="check" size={16} />
+                <span>{success}</span>
+              </div>
+            )}
 
-          {/* Magic Link Toggle */}
-          {!isRegisterMode && (
-            <button
-              type="button"
-              className="form-link"
-              onClick={toggleMagicLink}
-              disabled={isLoading}
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              variant="primary"
+              loading={isLoading}
+              disabled={!email || (!useMagicLink && !password)}
+              className="login-submit-btn"
+              icon={useMagicLink ? <Icon name="mail" size={18} /> : <Icon name="login" size={18} />}
             >
-              {useMagicLink ? 'Use password instead' : 'Use magic link instead'}
-            </button>
-          )}
-        </form>
+              {useMagicLink 
+                ? 'Send Magic Link' 
+                : isRegisterMode 
+                  ? 'Create Account' 
+                  : 'Sign In'
+              }
+            </Button>
 
-        {/* Mode Toggle */}
-        <div className="login-footer">
-          <p>
-            {isRegisterMode ? 'Already have an account?' : "Don't have an account?"}
-            <button
-              type="button"
-              className="form-link form-link--primary"
-              onClick={toggleMode}
-              disabled={isLoading}
-            >
-              {isRegisterMode ? 'Sign In' : 'Create Account'}
-            </button>
-          </p>
+            {/* Magic Link Toggle */}
+            {!isRegisterMode && (
+              <button
+                type="button"
+                className="form-link"
+                onClick={toggleMagicLink}
+                disabled={isLoading}
+              >
+                {useMagicLink ? 'Use password instead' : 'Use magic link instead'}
+              </button>
+            )}
+          </form>
+
+          {/* Mode Toggle */}
+          <div className="login-footer">
+            <p>
+              {isRegisterMode ? 'Already have an account?' : "Don't have an account?"}
+              <button
+                type="button"
+                className="form-link form-link--primary"
+                onClick={toggleMode}
+                disabled={isLoading}
+              >
+                {isRegisterMode ? 'Sign In' : 'Create Account'}
+              </button>
+            </p>
+          </div>
         </div>
 
         {/* Background Elements */}

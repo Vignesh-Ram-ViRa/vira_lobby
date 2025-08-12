@@ -350,9 +350,85 @@ const Bingescape = () => {
           )}
         </div>
       ) : (
+        /* List View */
         <div className="bingescape-list">
-          {/* TODO: Implement list view similar to Bookworm */}
-          <p>List view coming soon...</p>
+          <div className="bingescape-list-header">
+            <div className="bingescape-list-header__cell">Poster</div>
+            <div className="bingescape-list-header__cell">Title</div>
+            <div className="bingescape-list-header__cell">Genre</div>
+            <div className="bingescape-list-header__cell">Season</div>
+            <div className="bingescape-list-header__cell">Rating</div>
+            <div className="bingescape-list-header__cell">Actions</div>
+          </div>
+          <div className="bingescape-list-body">
+            {filteredShows.length === 0 ? (
+              <div className="bingescape-list-empty">
+                <Icon name="play" size={48} />
+                <p>No shows found</p>
+              </div>
+            ) : (
+              filteredShows.map((show, index) => (
+                <div key={show.id} className="bingescape-list-item">
+                  <div className="bingescape-list-item__cell bingescape-list-item__poster">
+                    <img
+                      src={show.poster_image_url}
+                      alt={show.title}
+                      className="bingescape-list-item__image"
+                      onError={(e) => {
+                        e.target.src = `https://source.unsplash.com/random/100x150/?${show.genres?.[0] || 'series'},${show.title.replace(/\s/g, '')}&sig=${show.id}`
+                      }}
+                    />
+                  </div>
+                  <div className="bingescape-list-item__cell bingescape-list-item__title">
+                    <div className="bingescape-list-item__main-title">{show.title}</div>
+                    {show.verse && (
+                      <div className="bingescape-list-item__subtitle">{show.verse}</div>
+                    )}
+                  </div>
+                  <div className="bingescape-list-item__cell bingescape-list-item__genre">
+                    {show.genres?.slice(0, 2).map((genre, idx) => (
+                      <span key={idx} className="bingescape-list-item__tag">
+                        {genre}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="bingescape-list-item__cell bingescape-list-item__season">
+                    {show.season || '-'}
+                  </div>
+                  <div className="bingescape-list-item__cell bingescape-list-item__rating">
+                    <div className="bingescape-list-item__stars">
+                      {[...Array(5)].map((_, i) => (
+                        <Icon
+                          key={i}
+                          name={i < (show.star_rating || 0) ? 'star' : 'star-outline'}
+                          size={14}
+                          className={i < (show.star_rating || 0) ? 'star-filled' : 'star-empty'}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="bingescape-list-item__cell bingescape-list-item__actions">
+                    <button
+                      className="bingescape-list-item__action"
+                      onClick={() => handleShowClick(show)}
+                      title="View Details"
+                    >
+                      <Icon name="info" size={16} />
+                    </button>
+                    {show.watch_download_link && (
+                      <button
+                        className="bingescape-list-item__action"
+                        onClick={() => window.open(show.watch_download_link, '_blank')}
+                        title="Watch"
+                      >
+                        <Icon name="play" size={16} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       )}
 

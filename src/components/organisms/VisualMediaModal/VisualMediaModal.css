@@ -354,3 +354,49 @@
     flex-direction: column;
   }
 } 
+
+/* Image Preview for View Mode */
+.image-preview {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-secondary);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid var(--color-border-medium);
+}
+
+.image-preview__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.75rem;
+}
+
+.image-preview__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  text-align: center;
+  padding: 2rem;
+}
+
+.image-preview__placeholder p {
+  margin: 1rem 0 0 0;
+  font-size: 0.9rem;
+}
+
+/* Mobile responsive for image preview */
+@media (max-width: 768px) {
+  .image-preview__placeholder {
+    padding: 1rem;
+  }
+  
+  .image-preview__placeholder p {
+    font-size: 0.8rem;
+  }
+} 

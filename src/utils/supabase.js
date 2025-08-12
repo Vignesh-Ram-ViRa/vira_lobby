@@ -5,13 +5,84 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://uqrlvppsnppobz
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxcmx2cHBzbnBwb2J6b3dsY3F3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzNjM3MTQsImV4cCI6MjA1MTkzOTcxNH0.h8VXhW2x9fSYqJMxOsHHK4w1K9oJ5kZ2eJGRpA8VwxI'
 
 // Create Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
+export const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY,
+  {
+    auth: {
+      // Session will expire when browser closes
+      persistSession: false,
+      // Auto refresh tokens
+      autoRefreshToken: true,
+      // Detect session in URL
+      detectSessionInUrl: true
+    }
   }
-})
+)
+
+/**
+ * Upload image to Cloudinary via Supabase Edge Function
+ * @param {File} file - Image file to upload
+ * @returns {Promise<string>} Cloudinary URL
+ */
+export const uploadImage = async (file) => {
+  try {
+    console.log('🔄 Starting image upload...', {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type
+    })
+
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (!session) {
+      throw new Error('User must be authenticated to upload images')
+    }
+
+    console.log('✅ User authenticated, uploading to Edge Function...')
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/cloudinary-upload`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+      body: formData,
+    })
+
+    console.log('📥 Edge Function Response Status:', response.status)
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }))
+      console.error('❌ Edge Function Error:', { status: response.status, errorData })
+      
+      // Provide helpful error messages based on status
+      if (response.status === 404) {
+        throw new Error('Upload service not found. The Edge Function may not be deployed yet.')
+      } else if (response.status === 401) {
+        throw new Error('Authentication failed. Please log in again.')
+      } else if (response.status === 500) {
+        throw new Error(`Server error: ${errorData.error || 'Internal server error'}`)
+      } else {
+        throw new Error(errorData.error || `Upload failed with status ${response.status}`)
+      }
+    }
+
+    const data = await response.json()
+    console.log('✅ Upload successful:', data)
+    
+    if (!data.url) {
+      throw new Error('Invalid response: No URL returned from upload service')
+    }
+    
+    return data.url
+  } catch (error) {
+    console.error('💥 Image upload failed:', error)
+    throw error
+  }
+}
 
 // Helper functions for authentication
 export const auth = {
