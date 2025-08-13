@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { motion } from 'framer-motion'
 import { Icon } from '@components/atoms/Icon'
 import SearchBar from '@components/molecules/SearchBar'
 import ViewToggle from '@components/molecules/ViewToggle'
@@ -233,13 +232,16 @@ const OtakuHub = () => {
 
   // Group anime for grid view display
   const featuredAnime = deduplicatedAnime
-    .filter(show => show.star_rating >= 4)
+    .filter(show => show.star_rating >= 3) // Lowered from 4 to 3 to be more inclusive
     .sort((a, b) => (b.star_rating || 0) - (a.star_rating || 0))
     .slice(0, 10)
 
   const recentAnime = deduplicatedAnime
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     .slice(0, 10)
+
+  // For hero carousel - use featured items if available, otherwise use recent items
+  const heroItems = featuredAnime.length > 0 ? featuredAnime : recentAnime
 
   const topGenres = ['Action', 'Drama', 'Comedy', 'Romance', 'Fantasy', 'Slice of Life']
   const genreRows = topGenres.map(genre => ({
@@ -270,42 +272,11 @@ const OtakuHub = () => {
 
   return (
     <div className="otaku-hub-page">
-      {/* Header */}
+      {/* Page Title */}
       <div className="otaku-hub-header">
         <div className="otaku-hub-title">
-          <h1>{text.otakuHub.title}</h1>
-          <p>{text.otakuHub.description}</p>
-        </div>
-
-        <div className="otaku-hub-actions">
-          <div className="otaku-hub-actions__left">
-            <SearchBar
-              value={searchTerm}
-              onChange={setSearchTerm}
-              placeholder="Search anime, manga, studios..."
-              className="otaku-hub-search"
-            />
-          </div>
-          
-          <div className="otaku-hub-actions__right">
-            <ViewToggle mode={viewMode} onChange={setViewMode} />
-            
-            <button
-              className="otaku-hub-action-btn otaku-hub-action-btn--add"
-              onClick={handleAddAnime}
-              title="Add Anime"
-            >
-              <Icon name="plus" size={20} />
-            </button>
-
-            <button
-              className="otaku-hub-action-btn otaku-hub-action-btn--export"
-              onClick={handleExport}
-              title="Export to Excel"
-            >
-              <Icon name="file-excel" size={20} />
-            </button>
-          </div>
+          <h1>{text.categories.otakuHub.title}</h1>
+          <p>{text.categories.otakuHub.description}</p>
         </div>
       </div>
 
@@ -315,6 +286,45 @@ const OtakuHub = () => {
           searchTerm ? (
             /* Search Results */
             <div className="otaku-hub-search-results">
+              <div className="otaku-hub-controls">
+                <div className="otaku-hub-controls__left">
+                  <SearchBar
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    placeholder="Search anime, manga, studios..."
+                    className="otaku-hub-search"
+                  />
+                </div>
+                
+                <div className="otaku-hub-controls__right">
+                  <ViewToggle currentView={viewMode} onViewChange={setViewMode} />
+                  
+                  <button
+                    className="otaku-hub-action otaku-hub-action--upload"
+                    onClick={() => {/* TODO: Implement bulk upload */}}
+                    title="Bulk Upload"
+                  >
+                    <Icon name="upload" size={20} />
+                  </button>
+                  
+                  <button
+                    className="otaku-hub-action otaku-hub-action--add"
+                    onClick={handleAddAnime}
+                    title="Add Anime"
+                  >
+                    <Icon name="plus" size={20} />
+                  </button>
+
+                  <button
+                    className="otaku-hub-action otaku-hub-action--export"
+                    onClick={handleExport}
+                    title="Export to Excel"
+                  >
+                    <Icon name="file-excel" size={20} />
+                  </button>
+                </div>
+              </div>
+              
               <h2>Search Results ({deduplicatedAnime.length})</h2>
               <ContentRow
                 title="Results"
@@ -327,12 +337,54 @@ const OtakuHub = () => {
             /* Regular Grid View */
             <>
               {/* Hero Carousel */}
-              {featuredAnime.length > 0 && (
+              {heroItems.length > 0 && (
                 <HeroCarousel
-                  items={featuredAnime.slice(0, 5)}
-                  onItemClick={handleAnimeClick}
+                  items={heroItems.slice(0, 5)}
+                  onPlay={handleAnimeClick}
+                  onInfo={handleAnimeClick}
+                  onAdd={() => handleAddAnime()}
                 />
               )}
+
+              {/* Actions Bar - Below Hero Carousel */}
+              <div className="otaku-hub-controls">
+                <div className="otaku-hub-controls__left">
+                  <SearchBar
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    placeholder="Search anime, manga, studios..."
+                    className="otaku-hub-search"
+                  />
+                </div>
+                
+                <div className="otaku-hub-controls__right">
+                  <ViewToggle currentView={viewMode} onViewChange={setViewMode} />
+                  
+                  <button
+                    className="otaku-hub-action otaku-hub-action--upload"
+                    onClick={() => {/* TODO: Implement bulk upload */}}
+                    title="Bulk Upload"
+                  >
+                    <Icon name="upload" size={20} />
+                  </button>
+                  
+                  <button
+                    className="otaku-hub-action otaku-hub-action--add"
+                    onClick={handleAddAnime}
+                    title="Add Anime"
+                  >
+                    <Icon name="plus" size={20} />
+                  </button>
+
+                  <button
+                    className="otaku-hub-action otaku-hub-action--export"
+                    onClick={handleExport}
+                    title="Export to Excel"
+                  >
+                    <Icon name="file-excel" size={20} />
+                  </button>
+                </div>
+              </div>
 
               {/* Content Rows */}
               <div className="otaku-hub-rows">
@@ -352,7 +404,7 @@ const OtakuHub = () => {
                   />
                 )}
 
-                {genreRows.map((row, index) => (
+                {genreRows.map((row) => (
                   <ContentRow
                     key={row.title}
                     title={row.title}
@@ -365,16 +417,57 @@ const OtakuHub = () => {
           )
         ) : (
           /* Table View */
-          <div className="otaku-hub-table-container">
-            <HobbyTable
-              items={deduplicatedAnime}
-              columns={tableColumns}
-              onItemClick={handleAnimeClick}
-              onAction={handleAction}
-              emptyMessage="No anime found"
-              emptyIcon="play"
-            />
-          </div>
+          <>
+            <div className="otaku-hub-controls">
+              <div className="otaku-hub-controls__left">
+                <SearchBar
+                  value={searchTerm}
+                  onChange={setSearchTerm}
+                  placeholder="Search anime, manga, studios..."
+                  className="otaku-hub-search"
+                />
+              </div>
+              
+              <div className="otaku-hub-controls__right">
+                <ViewToggle currentView={viewMode} onViewChange={setViewMode} />
+                
+                <button
+                  className="otaku-hub-action otaku-hub-action--upload"
+                  onClick={() => {/* TODO: Implement bulk upload */}}
+                  title="Bulk Upload"
+                >
+                  <Icon name="upload" size={20} />
+                </button>
+                
+                <button
+                  className="otaku-hub-action otaku-hub-action--add"
+                  onClick={handleAddAnime}
+                  title="Add Anime"
+                >
+                  <Icon name="plus" size={20} />
+                </button>
+
+                <button
+                  className="otaku-hub-action otaku-hub-action--export"
+                  onClick={handleExport}
+                  title="Export to Excel"
+                >
+                  <Icon name="file-excel" size={20} />
+                </button>
+              </div>
+            </div>
+            
+            <div className="otaku-hub-table-container">
+              <HobbyTable
+                items={deduplicatedAnime}
+                columns={tableColumns}
+                onItemClick={handleAnimeClick}
+                onAction={handleAction}
+                emptyMessage="No anime found"
+                emptyIcon="play"
+              />
+            </div>
+          </>
         )}
       </div>
 

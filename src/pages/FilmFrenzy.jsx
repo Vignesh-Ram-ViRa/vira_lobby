@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { motion } from 'framer-motion'
+
 import { Icon } from '@components/atoms/Icon'
 import SearchBar from '@components/molecules/SearchBar'
 import ViewToggle from '@components/molecules/ViewToggle'
@@ -234,13 +234,16 @@ const FilmFrenzy = () => {
 
   // Group movies for grid view display
   const topRatedMovies = deduplicatedMovies
-    .filter(movie => (movie.imdb_rating && movie.imdb_rating >= 8) || (movie.star_rating && movie.star_rating >= 4))
+    .filter(movie => (movie.imdb_rating && movie.imdb_rating >= 7) || (movie.star_rating && movie.star_rating >= 3)) // More inclusive criteria
     .sort((a, b) => (b.imdb_rating || 0) - (a.imdb_rating || 0))
     .slice(0, 10)
 
   const recentMovies = deduplicatedMovies
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     .slice(0, 10)
+
+  // For hero carousel - use featured items if available, otherwise use recent items
+  const heroItems = topRatedMovies.length > 0 ? topRatedMovies : recentMovies
 
   const topGenres = ['Action', 'Drama', 'Comedy', 'Thriller', 'Sci-Fi', 'Horror']
   const genreRows = topGenres.map(genre => ({
@@ -271,42 +274,11 @@ const FilmFrenzy = () => {
 
   return (
     <div className="film-frenzy-page">
-      {/* Header */}
+      {/* Page Title */}
       <div className="film-frenzy-header">
         <div className="film-frenzy-title">
-          <h1>{text.filmFrenzy.title}</h1>
-          <p>{text.filmFrenzy.description}</p>
-        </div>
-
-        <div className="film-frenzy-actions">
-          <div className="film-frenzy-actions__left">
-            <SearchBar
-              value={searchTerm}
-              onChange={setSearchTerm}
-              placeholder="Search movies, franchises, directors..."
-              className="film-frenzy-search"
-            />
-          </div>
-          
-          <div className="film-frenzy-actions__right">
-            <ViewToggle mode={viewMode} onChange={setViewMode} />
-            
-            <button
-              className="film-frenzy-action-btn film-frenzy-action-btn--add"
-              onClick={handleAddMovie}
-              title="Add Movie"
-            >
-              <Icon name="plus" size={20} />
-            </button>
-
-            <button
-              className="film-frenzy-action-btn film-frenzy-action-btn--export"
-              onClick={handleExport}
-              title="Export to Excel"
-            >
-              <Icon name="file-excel" size={20} />
-            </button>
-          </div>
+          <h1>{text.categories.filmFrenzy.title}</h1>
+          <p>{text.categories.filmFrenzy.description}</p>
         </div>
       </div>
 
@@ -316,6 +288,45 @@ const FilmFrenzy = () => {
           searchTerm ? (
             /* Search Results */
             <div className="film-frenzy-search-results">
+              <div className="film-frenzy-controls">
+                <div className="film-frenzy-controls__left">
+                  <SearchBar
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    placeholder="Search movies, franchises, directors..."
+                    className="film-frenzy-search"
+                  />
+                </div>
+                
+                <div className="film-frenzy-controls__right">
+                  <ViewToggle currentView={viewMode} onViewChange={setViewMode} />
+                  
+                  <button
+                    className="film-frenzy-action film-frenzy-action--upload"
+                    onClick={() => {/* TODO: Implement bulk upload */}}
+                    title="Bulk Upload"
+                  >
+                    <Icon name="upload" size={20} />
+                  </button>
+                  
+                  <button
+                    className="film-frenzy-action film-frenzy-action--add"
+                    onClick={handleAddMovie}
+                    title="Add Movie"
+                  >
+                    <Icon name="plus" size={20} />
+                  </button>
+
+                  <button
+                    className="film-frenzy-action film-frenzy-action--export"
+                    onClick={handleExport}
+                    title="Export to Excel"
+                  >
+                    <Icon name="file-excel" size={20} />
+                  </button>
+                </div>
+              </div>
+              
               <h2>Search Results ({deduplicatedMovies.length})</h2>
               <ContentRow
                 title="Results"
@@ -328,12 +339,54 @@ const FilmFrenzy = () => {
             /* Regular Grid View */
             <>
               {/* Hero Carousel */}
-              {topRatedMovies.length > 0 && (
+              {heroItems.length > 0 && (
                 <HeroCarousel
-                  items={topRatedMovies.slice(0, 5)}
-                  onItemClick={handleMovieClick}
+                  items={heroItems.slice(0, 5)}
+                  onPlay={handleMovieClick}
+                  onInfo={handleMovieClick}
+                  onAdd={() => handleAddMovie()}
                 />
               )}
+
+              {/* Actions Bar - Below Hero Carousel */}
+              <div className="film-frenzy-controls">
+                <div className="film-frenzy-controls__left">
+                  <SearchBar
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    placeholder="Search movies, franchises, directors..."
+                    className="film-frenzy-search"
+                  />
+                </div>
+                
+                <div className="film-frenzy-controls__right">
+                  <ViewToggle currentView={viewMode} onViewChange={setViewMode} />
+                  
+                  <button
+                    className="film-frenzy-action film-frenzy-action--upload"
+                    onClick={() => {/* TODO: Implement bulk upload */}}
+                    title="Bulk Upload"
+                  >
+                    <Icon name="upload" size={20} />
+                  </button>
+                  
+                  <button
+                    className="film-frenzy-action film-frenzy-action--add"
+                    onClick={handleAddMovie}
+                    title="Add Movie"
+                  >
+                    <Icon name="plus" size={20} />
+                  </button>
+
+                  <button
+                    className="film-frenzy-action film-frenzy-action--export"
+                    onClick={handleExport}
+                    title="Export to Excel"
+                  >
+                    <Icon name="file-excel" size={20} />
+                  </button>
+                </div>
+              </div>
 
               {/* Content Rows */}
               <div className="film-frenzy-rows">
@@ -353,7 +406,7 @@ const FilmFrenzy = () => {
                   />
                 )}
 
-                {genreRows.map((row, index) => (
+                {genreRows.map((row) => (
                   <ContentRow
                     key={row.title}
                     title={row.title}
@@ -366,16 +419,57 @@ const FilmFrenzy = () => {
           )
         ) : (
           /* Table View */
-          <div className="film-frenzy-table-container">
-            <HobbyTable
-              items={deduplicatedMovies}
-              columns={tableColumns}
-              onItemClick={handleMovieClick}
-              onAction={handleAction}
-              emptyMessage="No movies found"
-              emptyIcon="play"
-            />
-          </div>
+          <>
+            <div className="film-frenzy-controls">
+              <div className="film-frenzy-controls__left">
+                <SearchBar
+                  value={searchTerm}
+                  onChange={setSearchTerm}
+                  placeholder="Search movies, franchises, directors..."
+                  className="film-frenzy-search"
+                />
+              </div>
+              
+              <div className="film-frenzy-controls__right">
+                <ViewToggle currentView={viewMode} onViewChange={setViewMode} />
+                
+                <button
+                  className="film-frenzy-action film-frenzy-action--upload"
+                  onClick={() => {/* TODO: Implement bulk upload */}}
+                  title="Bulk Upload"
+                >
+                  <Icon name="upload" size={20} />
+                </button>
+                
+                <button
+                  className="film-frenzy-action film-frenzy-action--add"
+                  onClick={handleAddMovie}
+                  title="Add Movie"
+                >
+                  <Icon name="plus" size={20} />
+                </button>
+
+                <button
+                  className="film-frenzy-action film-frenzy-action--export"
+                  onClick={handleExport}
+                  title="Export to Excel"
+                >
+                  <Icon name="file-excel" size={20} />
+                </button>
+              </div>
+            </div>
+            
+            <div className="film-frenzy-table-container">
+              <HobbyTable
+                items={deduplicatedMovies}
+                columns={tableColumns}
+                onItemClick={handleMovieClick}
+                onAction={handleAction}
+                emptyMessage="No movies found"
+                emptyIcon="play"
+              />
+            </div>
+          </>
         )}
       </div>
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { motion } from 'framer-motion'
+
 import { Icon } from '@components/atoms/Icon'
 import SearchBar from '@components/molecules/SearchBar'
 import ViewToggle from '@components/molecules/ViewToggle'
@@ -234,13 +234,16 @@ const Bingescape = () => {
 
   // Group shows for grid view display
   const featuredShows = deduplicatedShows
-    .filter(show => show.star_rating >= 4)
+    .filter(show => show.star_rating >= 3) // Lowered from 4 to 3 to be more inclusive
     .sort((a, b) => (b.star_rating || 0) - (a.star_rating || 0))
     .slice(0, 10)
 
   const recentShows = deduplicatedShows
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     .slice(0, 10)
+
+  // For hero carousel - use featured items if available, otherwise use recent items
+  const heroItems = featuredShows.length > 0 ? featuredShows : recentShows
 
   const topGenres = ['Action', 'Drama', 'Comedy', 'Thriller', 'Fantasy', 'Sci-Fi']
   const genreRows = topGenres.map(genre => ({
@@ -271,42 +274,11 @@ const Bingescape = () => {
 
   return (
     <div className="bingescape-page">
-      {/* Header */}
+      {/* Page Title */}
       <div className="bingescape-header">
         <div className="bingescape-title">
-          <h1>{text.bingescape.title}</h1>
-          <p>{text.bingescape.description}</p>
-        </div>
-
-        <div className="bingescape-actions">
-          <div className="bingescape-actions__left">
-            <SearchBar
-              value={searchTerm}
-              onChange={setSearchTerm}
-              placeholder="Search shows, series, documentaries..."
-              className="bingescape-search"
-            />
-          </div>
-          
-          <div className="bingescape-actions__right">
-            <ViewToggle mode={viewMode} onChange={setViewMode} />
-            
-            <button
-              className="bingescape-action-btn bingescape-action-btn--add"
-              onClick={handleAddShow}
-              title="Add Show"
-            >
-              <Icon name="plus" size={20} />
-            </button>
-
-            <button
-              className="bingescape-action-btn bingescape-action-btn--export"
-              onClick={handleExport}
-              title="Export to Excel"
-            >
-              <Icon name="file-excel" size={20} />
-            </button>
-          </div>
+          <h1>{text.categories.bingescape.title}</h1>
+          <p>{text.categories.bingescape.description}</p>
         </div>
       </div>
 
@@ -316,6 +288,45 @@ const Bingescape = () => {
           searchTerm ? (
             /* Search Results */
             <div className="bingescape-search-results">
+              <div className="bingescape-controls">
+                <div className="bingescape-controls__left">
+                  <SearchBar
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    placeholder="Search shows, series, documentaries..."
+                    className="bingescape-search"
+                  />
+                </div>
+                
+                <div className="bingescape-controls__right">
+                  <ViewToggle currentView={viewMode} onViewChange={setViewMode} />
+                  
+                  <button
+                    className="bingescape-action bingescape-action--upload"
+                    onClick={() => {/* TODO: Implement bulk upload */}}
+                    title="Bulk Upload"
+                  >
+                    <Icon name="upload" size={20} />
+                  </button>
+                  
+                  <button
+                    className="bingescape-action bingescape-action--add"
+                    onClick={handleAddShow}
+                    title="Add Show"
+                  >
+                    <Icon name="plus" size={20} />
+                  </button>
+
+                  <button
+                    className="bingescape-action bingescape-action--export"
+                    onClick={handleExport}
+                    title="Export to Excel"
+                  >
+                    <Icon name="file-excel" size={20} />
+                  </button>
+                </div>
+              </div>
+              
               <h2>Search Results ({deduplicatedShows.length})</h2>
               <ContentRow
                 title="Results"
@@ -328,12 +339,54 @@ const Bingescape = () => {
             /* Regular Grid View */
             <>
               {/* Hero Carousel */}
-              {featuredShows.length > 0 && (
+              {heroItems.length > 0 && (
                 <HeroCarousel
-                  items={featuredShows.slice(0, 5)}
-                  onItemClick={handleShowClick}
+                  items={heroItems.slice(0, 5)}
+                  onPlay={handleShowClick}
+                  onInfo={handleShowClick}
+                  onAdd={() => handleAddShow()}
                 />
               )}
+
+              {/* Actions Bar - Below Hero Carousel */}
+              <div className="bingescape-controls">
+                <div className="bingescape-controls__left">
+                  <SearchBar
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    placeholder="Search shows, series, documentaries..."
+                    className="bingescape-search"
+                  />
+                </div>
+                
+                <div className="bingescape-controls__right">
+                  <ViewToggle currentView={viewMode} onViewChange={setViewMode} />
+                  
+                  <button
+                    className="bingescape-action bingescape-action--upload"
+                    onClick={() => {/* TODO: Implement bulk upload */}}
+                    title="Bulk Upload"
+                  >
+                    <Icon name="upload" size={20} />
+                  </button>
+                  
+                  <button
+                    className="bingescape-action bingescape-action--add"
+                    onClick={handleAddShow}
+                    title="Add Show"
+                  >
+                    <Icon name="plus" size={20} />
+                  </button>
+
+                  <button
+                    className="bingescape-action bingescape-action--export"
+                    onClick={handleExport}
+                    title="Export to Excel"
+                  >
+                    <Icon name="file-excel" size={20} />
+                  </button>
+                </div>
+              </div>
 
               {/* Content Rows */}
               <div className="bingescape-rows">
@@ -353,7 +406,7 @@ const Bingescape = () => {
                   />
                 )}
 
-                {genreRows.map((row, index) => (
+                {genreRows.map((row) => (
                   <ContentRow
                     key={row.title}
                     title={row.title}
@@ -366,16 +419,57 @@ const Bingescape = () => {
           )
         ) : (
           /* Table View */
-          <div className="bingescape-table-container">
-            <HobbyTable
-              items={deduplicatedShows}
-              columns={tableColumns}
-              onItemClick={handleShowClick}
-              onAction={handleAction}
-              emptyMessage="No shows found"
-              emptyIcon="play"
-            />
-          </div>
+          <>
+            <div className="bingescape-controls">
+              <div className="bingescape-controls__left">
+                <SearchBar
+                  value={searchTerm}
+                  onChange={setSearchTerm}
+                  placeholder="Search shows, series, documentaries..."
+                  className="bingescape-search"
+                />
+              </div>
+              
+              <div className="bingescape-controls__right">
+                <ViewToggle currentView={viewMode} onViewChange={setViewMode} />
+                
+                <button
+                  className="bingescape-action bingescape-action--upload"
+                  onClick={() => {/* TODO: Implement bulk upload */}}
+                  title="Bulk Upload"
+                >
+                  <Icon name="upload" size={20} />
+                </button>
+                
+                <button
+                  className="bingescape-action bingescape-action--add"
+                  onClick={handleAddShow}
+                  title="Add Show"
+                >
+                  <Icon name="plus" size={20} />
+                </button>
+
+                <button
+                  className="bingescape-action bingescape-action--export"
+                  onClick={handleExport}
+                  title="Export to Excel"
+                >
+                  <Icon name="file-excel" size={20} />
+                </button>
+              </div>
+            </div>
+            
+            <div className="bingescape-table-container">
+              <HobbyTable
+                items={deduplicatedShows}
+                columns={tableColumns}
+                onItemClick={handleShowClick}
+                onAction={handleAction}
+                emptyMessage="No shows found"
+                emptyIcon="play"
+              />
+            </div>
+          </>
         )}
       </div>
 
