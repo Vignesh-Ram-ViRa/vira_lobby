@@ -360,7 +360,7 @@ Fields: name, image(prominent), location, genre, category, date, description
 Data:
 
 ## Spot Light – Personal portfolio photos (no list view)
-Fields: image(prominent), location, genre, catego
+Fields: image(prominent), location, genre, category, date, description
 
 Data:
 

@@ -11,6 +11,7 @@ const VisualMediaModal = ({
   item,
   onSave,
   onDelete,
+  onSetCover,
   initialMode = 'view', // 'view', 'edit', 'add'
   fields = [], // Array of field configurations
   title = 'Details'
@@ -53,7 +54,14 @@ const VisualMediaModal = ({
 
   const handleImageUpload = (imageUrl) => {
     // Update the appropriate image field based on the item type
-    const imageField = formData.poster_image_url !== undefined ? 'poster_image_url' : 'cover_image_url'
+    let imageField = 'image_url' // Default for portfolio items
+    
+    if (formData.poster_image_url !== undefined) {
+      imageField = 'poster_image_url'
+    } else if (formData.cover_image_url !== undefined) {
+      imageField = 'cover_image_url'
+    }
+    
     handleInputChange(imageField, imageUrl)
   }
 
@@ -226,6 +234,15 @@ const VisualMediaModal = ({
               <h2>{mode === 'add' ? `Add New ${title}` : `${title} Details`}</h2>
               {mode === 'view' && (
                 <div className="visual-media-modal__actions">
+                  {onSetCover && (
+                    <button
+                      className="visual-media-modal__action visual-media-modal__action--cover"
+                      onClick={() => onSetCover(item)}
+                      title="Set as Cover Image"
+                    >
+                      <Icon name="star" size={18} />
+                    </button>
+                  )}
                   <button
                     className="visual-media-modal__action"
                     onClick={() => setMode('edit')}
@@ -259,35 +276,65 @@ const VisualMediaModal = ({
                 {mode === 'view' ? (
                   /* View Mode - Show Image Preview */
                   <div className="image-preview">
-                    {formData.poster_image_url || formData.cover_image_url ? (
+                    {formData.poster_image_url || formData.cover_image_url || formData.image_url ? (
                       <img
-                        src={formData.poster_image_url || formData.cover_image_url}
-                        alt={formData.title || 'Cover Image'}
+                        src={formData.poster_image_url || formData.cover_image_url || formData.image_url}
+                        alt={formData.title || formData.name || 'Cover Image'}
                         className="image-preview__img"
                         onError={(e) => {
-                          e.target.src = `https://source.unsplash.com/400x600/?${formData.genres?.[0] || 'media'}&sig=${formData.id || 'default'}`
+                          e.target.style.display = 'none'
+                          const placeholder = e.target.parentNode.querySelector('.image-preview__placeholder')
+                          if (placeholder) {
+                            placeholder.style.display = 'flex'
+                            placeholder.classList.add('image-preview--error')
+                          }
+                        }}
+                        onLoad={(e) => {
+                          const placeholder = e.target.parentNode.querySelector('.image-preview__placeholder')
+                          if (placeholder) {
+                            placeholder.style.display = 'none'
+                          }
                         }}
                       />
-                    ) : (
-                      <div className="image-preview__placeholder">
-                        <Icon name="image-off" size={48} />
-                        <p>No image available</p>
-                      </div>
-                    )}
+                    ) : null}
+                    <div 
+                      className="image-preview__placeholder" 
+                      style={{ 
+                        display: (formData.poster_image_url || formData.cover_image_url || formData.image_url) ? 'none' : 'flex' 
+                      }}
+                    >
+                      <Icon name="image" size={40} />
+                      <p>
+                        {(formData.poster_image_url || formData.cover_image_url || formData.image_url) ? 
+                          'Failed to load image' : 
+                          'No image available'
+                        }
+                      </p>
+                      {(formData.poster_image_url || formData.cover_image_url || formData.image_url) && (
+                        <small>The image URL might be broken or inaccessible</small>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   /* Edit/Add Mode - Show Upload Component */
-                  <ImageUpload
-                    currentImageUrl={formData.poster_image_url || formData.cover_image_url || ''}
-                    onImageUpload={handleImageUpload}
-                    disabled={false}
-                  />
+                  fields.some(field => field.name === 'upload_image') && (
+                    <div className="form-group">
+                      <label className="form-label">
+                        {fields.find(field => field.name === 'upload_image')?.label || 'Upload Image'}
+                      </label>
+                      <ImageUpload
+                        currentImageUrl={formData.poster_image_url || formData.cover_image_url || formData.image_url || ''}
+                        onImageUpload={handleImageUpload}
+                        disabled={false}
+                      />
+                    </div>
+                  )
                 )}
               </div>
 
               {/* Form Fields */}
               <div className="visual-media-modal__form">
-                {fields.filter(field => field.type !== 'image').map(field => (
+                {fields.filter(field => field.type !== 'image' && field.name !== 'upload_image').map(field => (
                   <div key={field.name} className="form-group">
                     <label className="form-label">{field.label}</label>
                     {renderField(field)}
@@ -296,6 +343,32 @@ const VisualMediaModal = ({
                     )}
                   </div>
                 ))}
+
+                {/* Image URL Field */}
+                {mode === 'view' && (formData.image_url || formData.poster_image_url || formData.cover_image_url) && (
+                  <div className="form-group">
+                    <label className="form-label">Image URL</label>
+                    <div className="image-url-display">
+                      <input
+                        type="text"
+                        value={formData.image_url || formData.poster_image_url || formData.cover_image_url || ''}
+                        readOnly
+                        className="form-input image-url-input"
+                      />
+                      <button
+                        type="button"
+                        className="copy-url-btn"
+                        onClick={() => {
+                          const url = formData.image_url || formData.poster_image_url || formData.cover_image_url
+                          navigator.clipboard.writeText(url)
+                        }}
+                        title="Copy URL"
+                      >
+                        <Icon name="copy" size={16} />
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Watch/Read Link */}
                 {formData.watch_download_link && mode === 'view' && (
