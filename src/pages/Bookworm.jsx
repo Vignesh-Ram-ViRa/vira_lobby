@@ -71,54 +71,50 @@ const Bookworm = () => {
     fetchBooks()
   }, [user, isGuest])
 
-  // Filter books based on search query
+  // Enhanced smart search - filters by all important columns
   const filteredBooks = books.filter(book => {
     if (!searchQuery) return true
     const searchLower = searchQuery.toLowerCase()
     return (
+      // Title search
       book.title?.toLowerCase().includes(searchLower) ||
+      // Author search (handles multiple authors)
       book.authors?.some(author => author.toLowerCase().includes(searchLower)) ||
+      // Genre search (handles multiple genres)
       book.genres?.some(genre => genre.toLowerCase().includes(searchLower)) ||
-      book.series?.toLowerCase().includes(searchLower)
+      // Series search
+      book.series?.toLowerCase().includes(searchLower) ||
+      // Language search
+      book.language?.toLowerCase().includes(searchLower) ||
+      // Publisher search
+      book.publisher?.toLowerCase().includes(searchLower) ||
+      // Publication year search (handles both year number and full date)
+      book.publication_date?.toString().includes(searchQuery) ||
+      book.publication_year?.toString().includes(searchQuery) ||
+      // Reading dates search
+      book.start_date?.includes(searchQuery) ||
+      book.end_date?.includes(searchQuery) ||
+      // ISBN search
+      book.isbn?.toLowerCase().includes(searchLower) ||
+      // Tags search (if available)
+      book.tags?.some(tag => tag.toLowerCase().includes(searchLower)) ||
+      // Description/synopsis search
+      book.description?.toLowerCase().includes(searchLower) ||
+      book.synopsis?.toLowerCase().includes(searchLower) ||
+      // Rating search (e.g., searching "5 star" or "★★★★★")
+      (book.star_rating && (
+        searchLower.includes('star') && searchQuery.includes(book.star_rating.toString()) ||
+        searchLower.includes('★') && '★'.repeat(book.star_rating).includes(searchQuery)
+      )) ||
+      // Status search (if available)
+      book.status?.toLowerCase().includes(searchLower) ||
+      // Format search (e.g., "ebook", "hardcover", "paperback")
+      book.format?.toLowerCase().includes(searchLower)
     )
   })
 
   // Sample search filters for the search bar
-  const searchFilters = [
-    {
-      key: 'genre',
-      label: 'Genre',
-      type: 'multiselect',
-      options: [
-        { value: 'fiction', label: 'Fiction' },
-        { value: 'non-fiction', label: 'Non-Fiction' },
-        { value: 'fantasy', label: 'Fantasy' },
-        { value: 'sci-fi', label: 'Science Fiction' },
-        { value: 'romance', label: 'Romance' },
-        { value: 'mystery', label: 'Mystery' },
-        { value: 'biography', label: 'Biography' }
-      ]
-    },
-    {
-      key: 'rating',
-      label: 'Rating',
-      type: 'range',
-      min: 1,
-      max: 5,
-      step: 1
-    },
-    {
-      key: 'language',
-      label: 'Language',
-      type: 'select',
-      options: [
-        { value: 'english', label: 'English' },
-        { value: 'spanish', label: 'Spanish' },
-        { value: 'french', label: 'French' },
-        { value: 'german', label: 'German' }
-      ]
-    }
-  ]
+  // Removed to simplify search interface per user request
 
   // Handle book click
   const handleBookClick = (book) => {
@@ -306,7 +302,6 @@ const Bookworm = () => {
           searchQuery={searchQuery}
           onSearchChange={(query) => dispatch(setSearchQuery(query))}
           placeholder="Search your library..."
-          filters={searchFilters}
           className="bookworm-search"
         />
         
@@ -390,8 +385,9 @@ const Bookworm = () => {
               // List View
               <div className="books-list">
                 <div className="books-list__header">
-                  <div className="books-list__col books-list__col--title">Title</div>
+                  <div className="books-list__col books-list__col--title books-list__col--title-prominent">Title</div>
                   <div className="books-list__col books-list__col--author">Author</div>
+                  <div className="books-list__col books-list__col--language">Language</div>
                   <div className="books-list__col books-list__col--genre">Genre</div>
                   <div className="books-list__col books-list__col--rating">Rating</div>
                   <div className="books-list__col books-list__col--date">Date</div>
@@ -407,12 +403,15 @@ const Bookworm = () => {
                       transition={{ duration: 0.4, delay: index * 0.05 }}
                       onClick={() => handleBookClick(book)}
                     >
-                      <div className="books-list__col books-list__col--title">
-                        <div className="book-list-title">{book.title}</div>
+                      <div className="books-list__col books-list__col--title books-list__col--title-prominent">
+                        <div className="book-list-title book-list-title--prominent">{book.title}</div>
                         {book.series && <div className="book-list-series">{book.series}</div>}
                       </div>
                       <div className="books-list__col books-list__col--author">
                         {book.authors && book.authors.length > 0 ? book.authors[0] : 'Unknown'}
+                      </div>
+                      <div className="books-list__col books-list__col--language">
+                        {book.language || 'Not specified'}
                       </div>
                       <div className="books-list__col books-list__col--genre">
                         {book.genres && book.genres.length > 0 ? book.genres.slice(0, 2).join(', ') : 'N/A'}
