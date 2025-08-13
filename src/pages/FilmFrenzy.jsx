@@ -100,11 +100,11 @@ const FilmFrenzy = () => {
     setIsModalOpen(true)
   }
 
-  const handleSaveMovie = async (movieData) => {
+  const handleSaveMovie = async (movieData, mode) => {
     try {
       dispatch(setLoading(true))
       
-      if (modalMode === 'add') {
+      if (mode === 'add') {
         const { data, error } = await supabase
           .from('film_frenzy')
           .insert([{ ...movieData, user_id: user?.id }])
@@ -112,7 +112,7 @@ const FilmFrenzy = () => {
         
         if (error) throw error
         if (data?.[0]) dispatch(addMovie(data[0]))
-      } else if (modalMode === 'edit') {
+      } else if (mode === 'edit') {
         const { data, error } = await supabase
           .from('film_frenzy')
           .update(movieData)
@@ -125,9 +125,11 @@ const FilmFrenzy = () => {
       
       setIsModalOpen(false)
       setSelectedMovie(null)
+      return true
     } catch (error) {
       console.error('Error saving movie:', error)
       dispatch(setError(error.message))
+      return false
     } finally {
       dispatch(setLoading(false))
     }
@@ -470,11 +472,11 @@ const FilmFrenzy = () => {
       <VisualMediaModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        mode={modalMode}
+        initialMode={modalMode}
         item={selectedMovie}
         onSave={handleSaveMovie}
         onDelete={handleDeleteMovie}
-        type="movie"
+        title="Movie"
         fields={[
           { name: 'title', label: 'Title', type: 'text', required: true },
           { name: 'verse', label: 'Universe/Franchise', type: 'text' },
@@ -485,7 +487,8 @@ const FilmFrenzy = () => {
           { name: 'imdb_rating', label: 'IMDB Rating', type: 'number', min: 0, max: 10, step: 0.1 },
           { name: 'star_rating', label: 'Personal Rating', type: 'rating' },
           { name: 'watch_download_link', label: 'Watch/Download Link', type: 'url' },
-          { name: 'poster_image_url', label: 'Poster Image', type: 'image' },
+          { name: 'poster_image_url', label: 'Poster Image URL', type: 'url', placeholder: 'https://...' },
+          { name: 'upload_image', label: 'Upload Poster Image', type: 'image' },
           { name: 'comment', label: 'Comments', type: 'textarea' }
         ]}
       />

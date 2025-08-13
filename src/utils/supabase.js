@@ -212,8 +212,8 @@ export const hobbyDb = {
   scribbles: {
     getAll: () => db.select('scribbles').order('created_at', { ascending: false }),
     getById: (id) => db.select('scribbles').eq('id', id).single(),
-    create: (data) => db.insert('scribbles', data),
-    update: (id, data) => db.update('scribbles', data, { id }),
+    create: (data) => db.insert('scribbles', data).select(),
+    update: (id, data) => db.update('scribbles', data, { id }).select(),
     delete: (id) => db.delete('scribbles', { id }),
     search: (query) => db.select('scribbles').or(`name.ilike.%${query}%,genre.ilike.%${query}%,category.ilike.%${query}%`),
   },

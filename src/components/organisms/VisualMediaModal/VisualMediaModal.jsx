@@ -53,12 +53,16 @@ const VisualMediaModal = ({
   }
 
   const handleImageUpload = (imageUrl) => {
-    // Update the appropriate image field based on the item type
+    // Update the appropriate image field based on the field configuration
     let imageField = 'image_url' // Default for portfolio items
     
-    if (formData.poster_image_url !== undefined) {
+    // Check if poster_image_url field exists in field configuration
+    const hasPosterImageField = fields.some(field => field.name === 'poster_image_url')
+    const hasCoverImageField = fields.some(field => field.name === 'cover_image_url')
+    
+    if (hasPosterImageField) {
       imageField = 'poster_image_url'
-    } else if (formData.cover_image_url !== undefined) {
+    } else if (hasCoverImageField) {
       imageField = 'cover_image_url'
     }
     
@@ -73,6 +77,7 @@ const VisualMediaModal = ({
   const handleSave = async () => {
     setIsLoading(true)
     try {
+
       const success = await onSave(formData, mode)
       if (success) {
         handleClose()
@@ -149,16 +154,44 @@ const VisualMediaModal = ({
           />
         )
       
-      case 'month':
+      case 'month': {
+        // Ensure the date format is correct for month input (YYYY-MM)
+        const formatForMonthInput = (dateValue) => {
+          if (!dateValue) return ''
+          
+          // If it's already in YYYY-MM format, return as is
+          if (/^\d{4}-\d{2}$/.test(dateValue)) {
+            return dateValue
+          }
+          
+          // If it's in MM/YY format, convert to YYYY-MM
+          if (/^\d{2}\/\d{2}$/.test(dateValue)) {
+            const [month, year] = dateValue.split('/')
+            const fullYear = year.length === 2 ? `20${year}` : year
+            return `${fullYear}-${month.padStart(2, '0')}`
+          }
+          
+          // If it's in other formats, try to parse and format
+          const date = new Date(dateValue)
+          if (!isNaN(date.getTime())) {
+            const year = date.getFullYear()
+            const month = String(date.getMonth() + 1).padStart(2, '0')
+            return `${year}-${month}`
+          }
+          
+          return ''
+        }
+        
         return (
           <input
             type="month"
             className="form-input"
-            value={value}
+            value={formatForMonthInput(value)}
             onChange={(e) => handleInputChange(field.name, e.target.value)}
             readOnly={isReadOnly}
           />
         )
+      }
       
       case 'url':
         return (

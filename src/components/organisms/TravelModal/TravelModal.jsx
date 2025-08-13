@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import './TravelModal.css';
 import Icon from '../../atoms/Icon';
 import Button from '../../atoms/Button';
+import ImageUpload from '../../molecules/ImageUpload';
 import { closeModal, addTrip, updateTrip, deleteTrip } from '../../../features/wanderlog/wanderlogSlice';
 import { LANGUAGE } from '../../../constants/language';
 import { supabase } from '../../../utils/supabase';
@@ -71,6 +72,22 @@ const TravelModal = () => {
     }));
   };
 
+  const handleImageUpload = (imageUrl) => {
+    handleInputChange('cover_image_url', imageUrl);
+  };
+
+  const handleSampleImageUpload = async (file) => {
+    try {
+      // Import the uploadImage function dynamically
+      const { uploadImage } = await import('../../../utils/supabase');
+      const imageUrl = await uploadImage(file);
+      return imageUrl;
+    } catch (error) {
+      console.error('Error uploading sample image:', error);
+      throw error;
+    }
+  };
+
   const handleAddAttraction = () => {
     if (attractionInput.trim() && !formData.attractions.includes(attractionInput.trim())) {
       setFormData(prev => ({
@@ -89,12 +106,40 @@ const TravelModal = () => {
   };
 
   const handleAddImage = () => {
-    const url = prompt('Enter image URL:');
-    if (url && formData.sample_images.length < 5) {
-      setFormData(prev => ({
-        ...prev,
-        sample_images: [...prev.sample_images, url]
-      }));
+    const choice = window.confirm('Choose how to add image:\nOK = Upload file\nCancel = Enter URL');
+    
+    if (choice) {
+      // Upload file
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (file && formData.sample_images.length < 5) {
+          try {
+            const imageUrl = await handleSampleImageUpload(file);
+            if (imageUrl) {
+              setFormData(prev => ({
+                ...prev,
+                sample_images: [...prev.sample_images, imageUrl]
+              }));
+            }
+          } catch (error) {
+            console.error('Error uploading image:', error);
+            alert('Failed to upload image. Please try again.');
+          }
+        }
+      };
+      input.click();
+    } else {
+      // Enter URL
+      const url = prompt('Enter image URL:');
+      if (url && formData.sample_images.length < 5) {
+        setFormData(prev => ({
+          ...prev,
+          sample_images: [...prev.sample_images, url]
+        }));
+      }
     }
   };
 
@@ -384,9 +429,21 @@ const TravelModal = () => {
                         type="url"
                         value={formData.cover_image_url}
                         onChange={(e) => handleInputChange('cover_image_url', e.target.value)}
+                        placeholder="https://..."
                       />
                     )}
                   </div>
+
+                  {!isViewMode && (
+                    <div className="travel-modal-form-group">
+                      <label>Or Upload Cover Image</label>
+                      <ImageUpload
+                        currentImageUrl={formData.cover_image_url}
+                        onImageUpload={handleImageUpload}
+                        disabled={false}
+                      />
+                    </div>
+                  )}
 
                   <div className="travel-modal-form-group">
                     <label>Sample Images ({formData.sample_images.length}/5)</label>

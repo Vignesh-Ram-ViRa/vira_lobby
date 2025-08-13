@@ -69,12 +69,59 @@ const Dashboard = () => {
           query = query.eq('user_id', user.id)
           console.log(`Fetching ${tableName} records for owner:`, user.id)
         } else if (isGuest) {
-          // For guests, skip or use owner's UUID when available
-          stats[hobby] = {
-            count: 0,
-            topGenres: [],
-            averageRating: 0,
-            recentActivity: null
+          // For guests, try to fetch public records by finding the owner's data
+          // For now, show demo/empty stats until owner UUID is configured
+          try {
+            // Get all records without user filter for demo purposes
+            const { count } = await query.select('*', { count: 'exact', head: true })
+            const { data: items } = await query.select('genres, star_rating, created_at').order('created_at', { ascending: false }).limit(10)
+            
+            // Calculate basic statistics
+            let topGenres = []
+            let averageRating = 0
+            let recentActivity = null
+
+            if (items && items.length > 0) {
+              // Calculate top genres
+              const genreCount = {}
+              items.forEach(item => {
+                if (item.genres && Array.isArray(item.genres)) {
+                  item.genres.forEach(genre => {
+                    genreCount[genre] = (genreCount[genre] || 0) + 1
+                  })
+                }
+              })
+              
+              topGenres = Object.entries(genreCount)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 3)
+                .map(([genre]) => genre)
+
+              // Calculate average rating
+              const ratingsSum = items
+                .filter(item => item.star_rating)
+                .reduce((sum, item) => sum + item.star_rating, 0)
+              const ratingsCount = items.filter(item => item.star_rating).length
+              averageRating = ratingsCount > 0 ? ratingsSum / ratingsCount : 0
+
+              // Get most recent activity
+              recentActivity = items[0] || null
+            }
+
+            stats[hobby] = {
+              count: count || 0,
+              topGenres,
+              averageRating,
+              recentActivity
+            }
+          } catch (error) {
+            console.error(`Error fetching guest stats for ${hobby}:`, error)
+            stats[hobby] = {
+              count: 0,
+              topGenres: [],
+              averageRating: 0,
+              recentActivity: null
+            }
           }
           continue
         } else if (user?.id) {

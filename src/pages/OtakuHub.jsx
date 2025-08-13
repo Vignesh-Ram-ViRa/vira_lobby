@@ -98,11 +98,11 @@ const OtakuHub = () => {
     setIsModalOpen(true)
   }
 
-  const handleSaveAnime = async (animeData) => {
+  const handleSaveAnime = async (animeData, mode) => {
     try {
       dispatch(setLoading(true))
       
-      if (modalMode === 'add') {
+      if (mode === 'add') {
         const { data, error } = await supabase
           .from('otaku_hub')
           .insert([{ ...animeData, user_id: user?.id }])
@@ -110,7 +110,7 @@ const OtakuHub = () => {
         
         if (error) throw error
         if (data?.[0]) dispatch(addAnime(data[0]))
-      } else if (modalMode === 'edit') {
+      } else if (mode === 'edit') {
         const { data, error } = await supabase
           .from('otaku_hub')
           .update(animeData)
@@ -123,9 +123,11 @@ const OtakuHub = () => {
       
       setIsModalOpen(false)
       setSelectedAnime(null)
+      return true
     } catch (error) {
       console.error('Error saving anime:', error)
       dispatch(setError(error.message))
+      return false
     } finally {
       dispatch(setLoading(false))
     }
@@ -468,11 +470,11 @@ const OtakuHub = () => {
       <VisualMediaModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        mode={modalMode}
+        initialMode={modalMode}
         item={selectedAnime}
         onSave={handleSaveAnime}
         onDelete={handleDeleteAnime}
-        type="anime"
+        title="Anime"
         fields={[
           { name: 'title', label: 'Title', type: 'text', required: true },
           { name: 'verse', label: 'Universe/Series', type: 'text' },
@@ -483,7 +485,8 @@ const OtakuHub = () => {
           { name: 'end_date', label: 'End Date', type: 'month' },
           { name: 'star_rating', label: 'Rating', type: 'rating' },
           { name: 'watch_download_link', label: 'Watch/Download Link', type: 'url' },
-          { name: 'poster_image_url', label: 'Poster Image', type: 'image' },
+          { name: 'poster_image_url', label: 'Poster Image URL', type: 'url', placeholder: 'https://...' },
+          { name: 'upload_image', label: 'Upload Poster Image', type: 'image' },
           { name: 'comment', label: 'Comments', type: 'textarea' }
         ]}
       />

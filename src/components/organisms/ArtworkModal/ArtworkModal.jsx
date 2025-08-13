@@ -12,11 +12,14 @@ import {
   setError 
 } from '@features/scribbles/scribblesSlice';
 import { LANGUAGE } from '@constants/language';
+import { hobbyDb } from '@utils/supabase';
+import { useAuth } from '@hooks/useAuth';
 import './ArtworkModal.css';
 
 const ArtworkModal = () => {
   const dispatch = useDispatch();
   const { showModal, modalMode, currentArtwork } = useSelector(state => state.scribbles);
+  const { hasWriteAccess, user, isGuest } = useAuth();
   
   // Form state
   const [formData, setFormData] = useState({
@@ -83,41 +86,106 @@ const ArtworkModal = () => {
     return true;
   };
 
-  // Handle form submission
+    // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) return;
     
+    // Check if user has write access
+    if (!hasWriteAccess()) {
+      if (isGuest) {
+        dispatch(setError('Guest users cannot save artworks. Please sign in to save your work.'));
+      } else if (!user) {
+        dispatch(setError('You must be signed in to save artworks.'));
+      } else {
+        dispatch(setError('You do not have permission to save artworks.'));
+      }
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
-      const artworkData = {
-        ...formData,
-        id: modalMode === 'edit' ? currentArtwork.id : Date.now().toString(),
-        created_at: modalMode === 'edit' ? currentArtwork.created_at : new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-
       if (modalMode === 'add') {
-        dispatch(addArtwork(artworkData));
+        // Create new artwork in Supabase
+        const artworkData = {
+          ...formData,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+
+        const { data, error } = await hobbyDb.scribbles.create(artworkData);
+        
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        // Update Redux state with the new artwork (including the ID from Supabase)
+        dispatch(addArtwork(data[0]));
+        
       } else if (modalMode === 'edit') {
-        dispatch(updateArtwork(artworkData));
+        // Update existing artwork in Supabase
+        const artworkData = {
+          ...formData,
+          updated_at: new Date().toISOString()
+        };
+
+        const { error } = await hobbyDb.scribbles.update(currentArtwork.id, artworkData);
+        
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        // Update Redux state with the updated artwork
+        dispatch(updateArtwork({ ...artworkData, id: currentArtwork.id, created_at: currentArtwork.created_at }));
       }
       
       handleClose();
     } catch (error) {
-      dispatch(setError('Failed to save artwork. Please try again.'));
+      console.error('Save error:', error);
+      dispatch(setError(`Failed to save artwork: ${error.message}`));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   // Handle delete
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (currentArtwork) {
-      dispatch(deleteArtwork(currentArtwork.id));
-      handleClose();
+      // Check if user has write access
+      if (!hasWriteAccess()) {
+        if (isGuest) {
+          dispatch(setError('Guest users cannot delete artworks. Please sign in to manage artworks.'));
+        } else if (!user) {
+          dispatch(setError('You must be signed in to delete artworks.'));
+        } else {
+          dispatch(setError('You do not have permission to delete artworks.'));
+        }
+        setShowDeleteConfirm(false);
+        return;
+      }
+
+      try {
+        setIsSubmitting(true);
+        
+        // Delete from Supabase
+        const { error } = await hobbyDb.scribbles.delete(currentArtwork.id);
+        
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        // Update Redux state
+        dispatch(deleteArtwork(currentArtwork.id));
+        handleClose();
+      } catch (error) {
+        console.error('Delete error:', error);
+        dispatch(setError(`Failed to delete artwork: ${error.message}`));
+      } finally {
+        setIsSubmitting(false);
+        setShowDeleteConfirm(false);
+      }
     }
   };
 

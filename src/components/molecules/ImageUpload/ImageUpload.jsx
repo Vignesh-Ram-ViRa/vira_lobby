@@ -11,9 +11,9 @@ const ImageUpload = ({ onImageUpload, currentImageUrl = '', disabled = false }) 
   const [error, setError] = useState('')
   const [previewUrl, setPreviewUrl] = useState(currentImageUrl)
   const fileInputRef = useRef(null)
-  const { isOwner, isSuperAdmin } = useAuth()
+  const { hasWriteAccess } = useAuth()
 
-  const canUpload = isOwner() || isSuperAdmin()
+  const canUpload = hasWriteAccess()
 
   const validateFile = (file) => {
     // Check file type
