@@ -5,6 +5,7 @@ import Icon from '@components/atoms/Icon';
 import ImageUpload from '@components/molecules/ImageUpload';
 import { 
   closeModal, 
+  openModal,
   addArtwork, 
   updateArtwork, 
   deleteArtwork,
@@ -349,7 +350,7 @@ const ArtworkModal = () => {
               
               <Button
                 variant="primary"
-                onClick={handleSubmit}
+                type="submit"
                 disabled={isSubmitting}
                 className="submit-btn"
               >
