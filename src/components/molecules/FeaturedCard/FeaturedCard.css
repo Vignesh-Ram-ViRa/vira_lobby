@@ -472,4 +472,151 @@
   .featured-card__action {
     border-width: 2px;
   }
+}
+
+/* Dark theme red-black metal gradients for professional car metallic finish */
+/* Using background with !important to override inline styles */
+[data-theme="formal-dark"] .featured-card--bookworm {
+  background: linear-gradient(135deg, 
+    #2A0A0A 0%, 
+    #8B0000 15%, 
+    #1A0A0A 30%, 
+    #A0522D 45%, 
+    #0A0A0A 60%, 
+    #8B4513 75%, 
+    #1A0A0A 100%
+  ) !important;
+}
+
+[data-theme="formal-dark"] .featured-card--bingescape {
+  background: linear-gradient(135deg, 
+    #2A0A0A 0%, 
+    #B22222 15%, 
+    #1A0A0A 30%, 
+    #DC143C 45%, 
+    #0A0A0A 60%, 
+    #8B0000 75%, 
+    #1A0A0A 100%
+  ) !important;
+}
+
+[data-theme="formal-dark"] .featured-card--filmFrenzy {
+  background: linear-gradient(135deg, 
+    #1A0A0A 0%, 
+    #8B0000 15%, 
+    #2A0A0A 30%, 
+    #CD5C5C 45%, 
+    #0A0A0A 60%, 
+    #DC2626 75%, 
+    #1A0A0A 100%
+  ) !important;
+}
+
+[data-theme="formal-dark"] .featured-card--otakuHub {
+  background: linear-gradient(135deg, 
+    #1A0A0A 0%, 
+    #8B0000 15%, 
+    #2A0A0A 30%, 
+    #DC143C 45%, 
+    #0A0A0A 60%, 
+    #B22222 75%, 
+    #1A0A0A 100%
+  ) !important;
+}
+
+[data-theme="formal-dark"] .featured-card--wanderlog {
+  background: linear-gradient(135deg, 
+    #0A1A0A 0%, 
+    #8B0000 15%, 
+    #1A0A0A 30%, 
+    #556B2F 45%, 
+    #0A0A0A 60%, 
+    #228B22 75%, 
+    #1A0A0A 100%
+  ) !important;
+}
+
+[data-theme="formal-dark"] .featured-card--scribbles {
+  background: linear-gradient(135deg, 
+    #1A0A0A 0%, 
+    #8B0000 15%, 
+    #2A0A0A 30%, 
+    #CD853F 45%, 
+    #0A0A0A 60%, 
+    #A0522D 75%, 
+    #1A0A0A 100%
+  ) !important;
+}
+
+[data-theme="formal-dark"] .featured-card--shutterTales {
+  background: linear-gradient(135deg, 
+    #1A0A1A 0%, 
+    #8B0000 15%, 
+    #1A0A0A 30%, 
+    #8B008B 45%, 
+    #0A0A0A 60%, 
+    #9370DB 75%, 
+    #1A0A0A 100%
+  ) !important;
+}
+
+[data-theme="formal-dark"] .featured-card--spotLight {
+  background: linear-gradient(135deg, 
+    #1A1A0A 0%, 
+    #8B0000 15%, 
+    #1A0A0A 30%, 
+    #DAA520 45%, 
+    #0A0A0A 60%, 
+    #FFD700 75%, 
+    #1A0A0A 100%
+  ) !important;
+}
+
+/* Enhanced metallic effects for dark theme */
+[data-theme="formal-dark"] .featured-card {
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(220, 38, 38, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="formal-dark"] .featured-card:hover {
+  border-color: rgba(220, 38, 38, 0.5);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.8),
+    0 0 100px rgba(220, 38, 38, 0.3),
+    inset 0 1px 0 rgba(220, 38, 38, 0.4),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.9);
+}
+
+/* Dark theme metallic icon backgrounds */
+[data-theme="formal-dark"] .featured-card__icon {
+  background: linear-gradient(135deg, 
+    rgba(220, 38, 38, 0.2) 0%, 
+    rgba(0, 0, 0, 0.8) 50%, 
+    rgba(220, 38, 38, 0.2) 100%
+  );
+  border: 1px solid rgba(220, 38, 38, 0.4);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(220, 38, 38, 0.3);
+}
+
+/* Dark theme action button */
+[data-theme="formal-dark"] .featured-card__action {
+  background: linear-gradient(135deg, 
+    rgba(220, 38, 38, 0.3) 0%, 
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  border: 1px solid rgba(220, 38, 38, 0.5);
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.2);
+}
+
+[data-theme="formal-dark"] .featured-card:hover .featured-card__action {
+  background: linear-gradient(135deg, 
+    rgba(220, 38, 38, 0.6) 0%, 
+    rgba(0, 0, 0, 0.9) 100%
+  );
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4);
 } 

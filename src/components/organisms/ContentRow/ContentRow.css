@@ -4,11 +4,31 @@
   color: white;
 }
 
+.content-row__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0 4rem;
+}
+
 .content-row__title {
   font-size: 1.5rem;
   font-weight: 600;
-  margin: 0 0 1rem 4rem;
+  margin: 0;
   color: white;
+}
+
+.content-row__scroll-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.5rem 0.75rem;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
 }
 
 .content-row__wrapper {
@@ -17,16 +37,16 @@
   align-items: center;
 }
 
-/* Navigation */
+/* Navigation - Always visible with adaptive opacity */
 .content-row__nav {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.7);
-  border: none;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   color: white;
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -34,24 +54,27 @@
   cursor: pointer;
   transition: all 0.3s ease;
   z-index: 10;
-  opacity: 0;
+  backdrop-filter: blur(10px);
 }
 
-.content-row:hover .content-row__nav {
-  opacity: 1;
+.content-row__nav:disabled {
+  cursor: not-allowed;
+  opacity: 0.3 !important;
 }
 
-.content-row__nav:hover {
-  background: rgba(0, 0, 0, 0.9);
-  transform: translateY(-50%) scale(1.1);
+.content-row__nav:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .content-row__nav--left {
-  left: 0;
+  left: 1rem;
 }
 
 .content-row__nav--right {
-  right: 0;
+  right: 1rem;
 }
 
 /* Container */
@@ -62,6 +85,12 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
   padding: 0 4rem;
+  cursor: grab;
+  user-select: none;
+}
+
+.content-row__container--dragging {
+  cursor: grabbing;
 }
 
 .content-row__container::-webkit-scrollbar {
@@ -72,6 +101,27 @@
   display: flex;
   gap: 0.5rem;
   padding: 1rem 0;
+  position: relative;
+}
+
+/* Progress indicator */
+.content-row__progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.content-row__progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #DC2626, #EF4444);
+  border-radius: 1px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
 }
 
 /* Item */
@@ -80,6 +130,7 @@
   cursor: pointer;
   position: relative;
   transition: all 0.3s ease;
+  user-select: none;
 }
 
 .content-row__item--poster {
@@ -108,6 +159,7 @@
   height: 100%;
   object-fit: cover;
   transition: all 0.3s ease;
+  pointer-events: none; /* Prevent image selection during drag */
 }
 
 .content-row__item:hover .content-row__item-image img {
@@ -265,12 +317,9 @@
 
 /* Responsive Design */
 @media (max-width: 1200px) {
+  .content-row__header,
   .content-row__container {
     padding: 0 3rem;
-  }
-  
-  .content-row__title {
-    margin-left: 3rem;
   }
   
   .content-row__item--poster {
@@ -288,6 +337,11 @@
   .content-row__item--backdrop .content-row__item-image {
     height: 140px;
   }
+
+  .content-row__nav {
+    width: 45px;
+    height: 45px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -295,13 +349,18 @@
     margin-bottom: 2rem;
   }
   
+  .content-row__header,
   .content-row__container {
     padding: 0 2rem;
   }
   
   .content-row__title {
-    margin-left: 2rem;
     font-size: 1.3rem;
+  }
+
+  .content-row__scroll-hint {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
   }
   
   .content-row__item--poster {
@@ -321,8 +380,16 @@
   }
   
   .content-row__nav {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .content-row__nav--left {
+    left: 0.5rem;
+  }
+
+  .content-row__nav--right {
+    right: 0.5rem;
   }
   
   .content-row__action {
@@ -336,13 +403,17 @@
 }
 
 @media (max-width: 480px) {
+  .content-row__header,
   .content-row__container {
     padding: 0 1rem;
   }
   
   .content-row__title {
-    margin-left: 1rem;
     font-size: 1.2rem;
+  }
+
+  .content-row__scroll-hint {
+    display: none; /* Hide hint on very small screens */
   }
   
   .content-row__item--poster {
@@ -362,8 +433,16 @@
   }
   
   .content-row__nav {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .content-row__nav--left {
+    left: 0.25rem;
+  }
+
+  .content-row__nav--right {
+    right: 0.25rem;
   }
   
   .content-row__items {

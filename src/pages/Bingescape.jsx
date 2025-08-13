@@ -175,13 +175,6 @@ const Bingescape = () => {
   // Table columns configuration
   const tableColumns = [
     {
-      field: 'poster_image_url',
-      label: 'Poster',
-      type: 'image',
-      sortable: false,
-      width: '80px'
-    },
-    {
       field: 'title',
       label: 'Title',
       type: 'text',
@@ -291,8 +284,8 @@ const Bingescape = () => {
               <div className="bingescape-controls">
                 <div className="bingescape-controls__left">
                   <SearchBar
-                    value={searchTerm}
-                    onChange={setSearchTerm}
+                    searchQuery={searchTerm}
+                    onSearchChange={setSearchTerm}
                     placeholder="Search shows, series, documentaries..."
                     className="bingescape-search"
                   />
@@ -352,8 +345,8 @@ const Bingescape = () => {
               <div className="bingescape-controls">
                 <div className="bingescape-controls__left">
                   <SearchBar
-                    value={searchTerm}
-                    onChange={setSearchTerm}
+                    searchQuery={searchTerm}
+                    onSearchChange={setSearchTerm}
                     placeholder="Search shows, series, documentaries..."
                     className="bingescape-search"
                   />
@@ -423,8 +416,8 @@ const Bingescape = () => {
             <div className="bingescape-controls">
               <div className="bingescape-controls__left">
                 <SearchBar
-                  value={searchTerm}
-                  onChange={setSearchTerm}
+                  searchQuery={searchTerm}
+                  onSearchChange={setSearchTerm}
                   placeholder="Search shows, series, documentaries..."
                   className="bingescape-search"
                 />

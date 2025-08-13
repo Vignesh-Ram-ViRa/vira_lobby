@@ -173,13 +173,6 @@ const OtakuHub = () => {
   // Table columns configuration
   const tableColumns = [
     {
-      field: 'poster_image_url',
-      label: 'Poster',
-      type: 'image',
-      sortable: false,
-      width: '80px'
-    },
-    {
       field: 'title',
       label: 'Title',
       type: 'text',
@@ -289,8 +282,8 @@ const OtakuHub = () => {
               <div className="otaku-hub-controls">
                 <div className="otaku-hub-controls__left">
                   <SearchBar
-                    value={searchTerm}
-                    onChange={setSearchTerm}
+                    searchQuery={searchTerm}
+                    onSearchChange={setSearchTerm}
                     placeholder="Search anime, manga, studios..."
                     className="otaku-hub-search"
                   />
@@ -350,8 +343,8 @@ const OtakuHub = () => {
               <div className="otaku-hub-controls">
                 <div className="otaku-hub-controls__left">
                   <SearchBar
-                    value={searchTerm}
-                    onChange={setSearchTerm}
+                    searchQuery={searchTerm}
+                    onSearchChange={setSearchTerm}
                     placeholder="Search anime, manga, studios..."
                     className="otaku-hub-search"
                   />
@@ -421,8 +414,8 @@ const OtakuHub = () => {
             <div className="otaku-hub-controls">
               <div className="otaku-hub-controls__left">
                 <SearchBar
-                  value={searchTerm}
-                  onChange={setSearchTerm}
+                  searchQuery={searchTerm}
+                  onSearchChange={setSearchTerm}
                   placeholder="Search anime, manga, studios..."
                   className="otaku-hub-search"
                 />

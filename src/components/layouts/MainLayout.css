@@ -42,45 +42,92 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--spacing-xl);
+  padding: 0 1rem; /* Reduced padding to fit more content */
   background: var(--color-bg-card);
   border-bottom: 1px solid var(--color-border-medium);
   z-index: 1000;
   box-shadow: var(--shadow-strong);
   position: relative;
-  height: 60px; /* Fixed header height */
-  flex-shrink: 0; /* Prevent header from shrinking */
+  height: 70px; /* Fixed height */
+  min-height: 70px; /* Ensure minimum height */
+  max-height: 70px; /* Prevent height changes */
+  width: 100%;
+  overflow: visible; /* Changed from auto to prevent scrollbars */
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
-.main-layout__header::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--metal-shine);
-  background-size: 200% 100%;
-  opacity: 0;
-  transition: opacity var(--transition-slow);
+/* Theme-specific header styling */
+[data-theme="formal-light"] .main-layout__header {
+  border-bottom: 1px solid var(--color-primary);
 }
 
-.main-layout__header:hover::before {
-  opacity: 0.1;
-  animation: shimmer 2s ease-out;
+[data-theme="fun-pastel"] .main-layout__header {
+  border-bottom: 1px solid var(--color-primary);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+}
+
+/* Dark theme red-black gradient accents */
+[data-theme="formal-dark"] .main-layout__header {
+  background: linear-gradient(135deg, #0A0A0A 0%, #1A0A0A 50%, #0A0A0A 100%);
+  border-bottom: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+[data-theme="formal-dark"] .main-layout__header::before {
+  background: linear-gradient(135deg, 
+    rgba(220, 38, 38, 0.1) 0%, 
+    rgba(0, 0, 0, 0.3) 25%, 
+    rgba(220, 38, 38, 0.05) 50%, 
+    rgba(0, 0, 0, 0.3) 75%, 
+    rgba(220, 38, 38, 0.1) 100%
+  );
+}
+
+.header__left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* Reduced gap to save space */
+  flex: 1;
+  min-width: 0; /* Allow shrinking */
+  max-width: 60%; /* Limit left section to prevent overflow */
+}
+
+.header__hamburger {
+  display: none; /* Hidden by default, shown on mobile */
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--color-text-primary);
+  flex-shrink: 0;
+}
+
+.header__hamburger:hover {
+  background: var(--color-bg-hover);
 }
 
 .header__logo {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 0.5rem; /* Reduced gap */
+  min-width: 0; /* Allow shrinking */
+  flex-shrink: 1; /* Allow logo area to shrink if needed */
 }
 
 .logo__text {
-  font-size: 1.5rem;
+  font-size: 1.4rem; /* Slightly reduced from 1.5rem */
   font-weight: 700;
   color: var(--color-text-primary);
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
 .logo__page {
@@ -127,22 +174,28 @@
 
 .header__actions {
   display: flex;
-  gap: var(--spacing-md);
+  gap: 0.5rem; /* Reduced gap to fit more items */
   align-items: center;
+  flex-shrink: 0; /* Prevent actions from shrinking */
+  min-width: fit-content; /* Ensure they maintain minimum width */
+  justify-content: flex-end; /* Align to right */
 }
 
 .header__action {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 4rem;
-  height: 4rem;
+  width: 40px; /* Slightly reduced size */
+  height: 40px; /* Slightly reduced size */
+  min-width: 40px; /* Ensure minimum size */
+  min-height: 40px; /* Ensure minimum size */
   border: none;
   background: transparent;
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: all var(--transition-fast);
   position: relative;
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
 .header__action::before {
@@ -179,10 +232,11 @@
   z-index: 100;
   position: relative;
   box-shadow: var(--shadow-medium);
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
 }
 
 .main-layout__sidebar:hover {
-  width: 250px; /* Expand on hover */
+  width: 280px; /* Increased from 250px for better text visibility */
 }
 
 /* Sidebar Navigation */
@@ -233,18 +287,56 @@
 }
 
 .sidebar__nav-text {
-  font-size: 1rem;
+  font-size: 1.1rem; /* Increased from 1rem for better visibility */
   font-weight: 500;
   opacity: 0;
   transform: translateX(-10px);
   transition: all 0.3s ease;
   white-space: nowrap;
+  min-width: 140px; /* Ensure adequate space for text */
 }
 
 /* Show text on sidebar hover */
 .main-layout__sidebar:hover .sidebar__nav-text {
   opacity: 1;
   transform: translateX(0);
+}
+
+/* Improve sidebar width for better zoom handling */
+.main-layout__sidebar {
+  grid-area: sidebar;
+  width: 80px; /* Narrow by default */
+  background: var(--color-bg-card);
+  border-right: 1px solid var(--color-border-medium);
+  padding: var(--spacing-lg) 0;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+  overflow: hidden;
+  z-index: 100;
+  position: relative;
+  box-shadow: var(--shadow-medium);
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
+}
+
+.main-layout__sidebar:hover {
+  width: 280px; /* Increased from 250px for better text visibility */
+}
+
+/* Dark theme sidebar styling */
+[data-theme="formal-dark"] .main-layout__sidebar {
+  background: linear-gradient(180deg, #171717 0%, #0A0A0A 100%);
+  border-right: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+[data-theme="formal-dark"] .sidebar__nav-item.active {
+  background: linear-gradient(135deg, 
+    rgba(220, 38, 38, 0.9) 0%, 
+    rgba(0, 0, 0, 0.8) 50%, 
+    rgba(220, 38, 38, 0.9) 100%
+  );
+  color: white;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 
 /* Content */
@@ -254,7 +346,9 @@
   overflow-x: hidden;
   background: var(--color-bg-primary);
   position: relative;
-  height: calc(100vh - 60px); /* Account for header height */
+  height: calc(100vh - 70px); /* Updated for new header height */
+  min-height: calc(100vh - 70px); /* Ensure minimum height */
+  z-index: 1; /* Lower z-index to allow dropdowns to appear above */
 }
 
 .main-layout__content::before {
@@ -287,7 +381,6 @@
       "header"
       "content";
     grid-template-columns: 1fr;
-    grid-template-rows: 80px 1fr;
   }
 
   .header__hamburger {
@@ -300,7 +393,7 @@
 
   .main-layout__sidebar {
     position: fixed;
-    top: 0;
+    top: 0; /* Start from very top */
     left: -100%;
     bottom: auto;
     right: auto;
@@ -308,7 +401,7 @@
     height: 100vh;
     flex-direction: column;
     justify-content: flex-start;
-    padding: 6rem 1rem 2rem;
+    padding: 110px 1rem 2rem; /* Increased from 90px to 110px for better clearance */
     z-index: 999;
     background: var(--color-bg-card);
     border: 1px solid var(--color-border-medium);
@@ -328,21 +421,10 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 80px;
-    padding: 0.75rem 1rem;
-    z-index: 1000;
+    z-index: 1000; /* Ensure header stays above sidebar */
     background: var(--color-bg-card);
     border-bottom: 1px solid var(--color-border-medium);
     grid-area: header;
-  }
-
-  .main-layout__content {
-    margin-top: 80px;
-    margin-bottom: 0;
-    padding: 1rem;
-    height: calc(100vh - 80px);
-    margin-left: 0;
-    grid-area: content;
   }
 
   /* Header title layout for mobile */
@@ -375,13 +457,13 @@
     flex-direction: column;
     gap: 0.5rem;
     width: 100%;
+    padding-top: 0; /* Remove extra top padding */
   }
 
   .sidebar__nav-item {
     flex-direction: row;
     width: 100%;
     height: auto;
-    padding: 1rem;
     border-radius: 0.75rem;
     margin: 0;
     transition: all 0.3s ease;
@@ -406,7 +488,6 @@
   }
 
   .sidebar__nav-text {
-    font-size: 1rem;
     text-align: left;
     line-height: 1;
     opacity: 1;
@@ -466,4 +547,104 @@
     gap: var(--spacing-md);
     font-size: 1.8rem;
   }
+} 
+
+/* Mobile responsive improvements */
+@media (max-width: 768px) {
+  .main-layout {
+    grid-template-rows: 80px 1fr; /* Increased header height for mobile */
+  }
+
+  .main-layout__header {
+    height: 80px; /* Increased mobile header height */
+    min-height: 80px;
+    padding: 0.75rem 1rem;
+  }
+
+  .main-layout__content {
+    height: calc(100vh - 80px); /* Updated for mobile header height */
+    min-height: calc(100vh - 80px);
+    margin-top: 80px;
+    margin-bottom: 0;
+    padding: 1rem;
+    margin-left: 0;
+  }
+
+  /* Mobile navigation items - better text visibility */
+  .sidebar__nav-item {
+    padding: 1.2rem; /* Increased padding for better touch targets */
+    min-height: 56px; /* Increased minimum height */
+  }
+
+  .sidebar__nav-text {
+    font-size: 1.1rem; /* Maintain larger text size on mobile */
+    font-weight: 500;
+  }
+}
+
+/* Zoom level responsive adjustments */
+@media screen and (min-resolution: 1.25dppx), screen and (min-width: 1200px) and (max-width: 1440px) {
+  .header__actions {
+    gap: 0.4rem; /* Further reduce gap for higher DPI */
+  }
+  
+  .header__left {
+    gap: 0.5rem; /* Reduce gap more */
+    max-width: 55%; /* Further limit left section */
+  }
+  
+  .logo__text {
+    font-size: 1.3rem; /* Slightly smaller for high DPI */
+  }
+  
+  .sidebar__nav-text {
+    font-size: 1.05rem; /* Slightly smaller for high DPI */
+  }
+}
+
+/* Extra viewport adjustments for 100% zoom on standard screens */
+@media screen and (min-width: 1024px) and (max-width: 1366px) {
+  .header__left {
+    max-width: 50%; /* More aggressive limitation */
+  }
+  
+  .header__actions {
+    gap: 0.3rem; /* Minimal gap */
+  }
+  
+  .main-layout__header {
+    padding: 0 0.75rem; /* Further reduce padding */
+  }
+}
+
+/* Ensure header elements don't cause overflow */
+.header__page-title {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px; /* Limit page title width */
+}
+
+/* Fix any remaining transform issues */
+.header__action:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-strong);
+  transform: none; /* Remove any transforms that might cause movement */
+  box-shadow: var(--shadow-medium);
+}
+
+/* Mobile Menu Overlay */
+.mobile-menu-overlay {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 998;
 } 

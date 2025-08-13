@@ -390,7 +390,6 @@ const Bookworm = () => {
               // List View
               <div className="books-list">
                 <div className="books-list__header">
-                  <div className="books-list__col books-list__col--cover">Cover</div>
                   <div className="books-list__col books-list__col--title">Title</div>
                   <div className="books-list__col books-list__col--author">Author</div>
                   <div className="books-list__col books-list__col--genre">Genre</div>
@@ -408,17 +407,6 @@ const Bookworm = () => {
                       transition={{ duration: 0.4, delay: index * 0.05 }}
                       onClick={() => handleBookClick(book)}
                     >
-                      <div className="books-list__col books-list__col--cover">
-                        <div className="book-list-cover">
-                          {book.cover_image_url ? (
-                            <img src={book.cover_image_url} alt={book.title} />
-                          ) : (
-                            <div className="book-list-cover__placeholder">
-                              <Icon name="book" size={20} />
-                            </div>
-                          )}
-                        </div>
-                      </div>
                       <div className="books-list__col books-list__col--title">
                         <div className="book-list-title">{book.title}</div>
                         {book.series && <div className="book-list-series">{book.series}</div>}

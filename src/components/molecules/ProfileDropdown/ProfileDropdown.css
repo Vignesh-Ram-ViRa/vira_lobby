@@ -1,6 +1,7 @@
 /* Profile Dropdown */
 .profile-dropdown {
   position: relative;
+  z-index: 10000; /* Ensure the whole component has high z-index */
 }
 
 .profile-dropdown__trigger {
@@ -14,12 +15,15 @@
   cursor: pointer;
   transition: all 0.3s ease;
   color: var(--color-text-primary);
+  height: 40px; /* Fixed height to prevent movement */
+  min-height: 40px; /* Prevent shrinking */
+  max-height: 40px; /* Prevent growing */
 }
 
 .profile-dropdown__trigger:hover {
   background: var(--color-bg-hover);
   border-color: var(--color-border-strong);
-  transform: translateY(-1px);
+  transform: none; /* Remove translateY to prevent header movement */
   box-shadow: var(--shadow-medium);
 }
 
@@ -57,7 +61,7 @@
   border-radius: 1rem;
   box-shadow: var(--shadow-strong);
   backdrop-filter: blur(20px);
-  z-index: 1000;
+  z-index: 10000; /* Increased from 1000 to ensure it's above everything */
   overflow: hidden;
 }
 
@@ -90,13 +94,13 @@
 
 .profile-dropdown__user-name {
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 1.1rem; /* Increased from 1rem for better visibility */
   color: var(--color-text-primary);
   margin-bottom: 0.25rem;
 }
 
 .profile-dropdown__user-role {
-  font-size: 0.875rem;
+  font-size: 1rem; /* Increased from 0.875rem for better visibility */
   color: var(--color-text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -118,16 +122,17 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem;
+  padding: 1rem; /* Increased from 0.75rem for better touch targets */
   background: none;
   border: none;
   border-radius: 0.5rem;
   color: var(--color-text-primary);
-  font-size: 0.875rem;
+  font-size: 1rem; /* Increased from 0.875rem for better visibility */
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
+  min-height: 48px; /* Ensure adequate touch target size */
 }
 
 .profile-dropdown__item:hover {
@@ -321,6 +326,36 @@
   margin: 0 0 0.75rem 0;
   color: var(--color-text-secondary);
   line-height: 1.5;
+}
+
+/* Dark theme red-black gradient styling */
+[data-theme="formal-dark"] .profile-dropdown__menu {
+  background: linear-gradient(135deg, #171717 0%, #0A0A0A 100%);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8), 0 0 24px rgba(220, 38, 38, 0.2);
+}
+
+[data-theme="formal-dark"] .profile-dropdown__user-info {
+  background: linear-gradient(135deg, 
+    rgba(220, 38, 38, 0.1) 0%, 
+    rgba(0, 0, 0, 0.3) 50%, 
+    rgba(220, 38, 38, 0.1) 100%
+  );
+  border-bottom: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+[data-theme="formal-dark"] .profile-dropdown__trigger {
+  background: linear-gradient(135deg, #171717 0%, #0A0A0A 100%);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+[data-theme="formal-dark"] .profile-dropdown__trigger:hover {
+  background: linear-gradient(135deg, 
+    rgba(220, 38, 38, 0.1) 0%, 
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  border-color: rgba(220, 38, 38, 0.6);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 
 /* Mobile Responsive */

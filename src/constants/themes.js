@@ -67,6 +67,7 @@ export const THEME_CONFIG = {
       '--color-bg-tertiary': '#262626', // Medium Gray
       '--color-bg-card': '#171717', // Card Background
       '--color-bg-overlay': 'rgba(0, 0, 0, 0.9)',
+      '--color-bg-hover': 'rgba(220, 38, 38, 0.1)', // Red hover effect
       
       // Text Colors - Cinema White
       '--color-text-primary': '#FFFFFF',
@@ -92,7 +93,14 @@ export const THEME_CONFIG = {
       
       // FilmBox Effects
       '--pattern-line-color': 'rgba(220, 38, 38, 0.3)',
-      '--pattern-bg-color': 'radial-gradient(circle at 30% 40%, rgba(220, 38, 38, 0.1) 0%, transparent 50%)'
+      '--pattern-bg-color': 'radial-gradient(circle at 30% 40%, rgba(220, 38, 38, 0.1) 0%, transparent 50%)',
+      
+      // Red-Black Metal Gradients
+      '--metal-shine': 'linear-gradient(135deg, rgba(220, 38, 38, 0.2) 0%, rgba(0, 0, 0, 0.3) 25%, rgba(220, 38, 38, 0.1) 50%, rgba(0, 0, 0, 0.3) 75%, rgba(220, 38, 38, 0.2) 100%)',
+      '--premium-gradient': 'linear-gradient(135deg, #DC2626 0%, #7F1D1D 50%, #DC2626 100%)',
+      '--accent-gradient': 'linear-gradient(135deg, rgba(220, 38, 38, 0.9) 0%, rgba(0, 0, 0, 0.8) 50%, rgba(220, 38, 38, 0.9) 100%)',
+      '--card-gradient': 'linear-gradient(135deg, #171717 0%, #0A0A0A 100%)',
+      '--border-gradient': 'linear-gradient(135deg, rgba(220, 38, 38, 0.3) 0%, rgba(220, 38, 38, 0.1) 100%)'
     }
   },
   

@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { Icon } from '@components/atoms/Icon'
 import ThemeToggle from '@components/molecules/ThemeToggle'
 import ProfileDropdown from '@components/molecules/ProfileDropdown'
+import Footer from './Footer'
 import './MainLayout.css'
 
 const MainLayout = ({ children }) => {
@@ -121,6 +122,7 @@ const MainLayout = ({ children }) => {
       
       <main className="main-layout__content">
         {children}
+        <Footer />
       </main>
     </div>
   )

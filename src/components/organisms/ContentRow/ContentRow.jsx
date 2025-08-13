@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Icon } from '@components/atoms/Icon'
 import './ContentRow.css'
@@ -13,20 +13,35 @@ const ContentRow = ({
   const [scrollPosition, setScrollPosition] = useState(0)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(true)
+  const [showScrollIndicator, setShowScrollIndicator] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState(null)
   const rowRef = useRef(null)
+
+  useEffect(() => {
+    // Initial scroll button state check
+    updateScrollButtons()
+    
+    // Show scroll indicator for a few seconds on mount if scrollable
+    if (canScrollRight) {
+      setShowScrollIndicator(true)
+      const timer = setTimeout(() => setShowScrollIndicator(false), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [items])
 
   const updateScrollButtons = () => {
     if (rowRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = rowRef.current
       setScrollPosition(scrollLeft)
-      setCanScrollLeft(scrollLeft > 0)
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1)
+      setCanScrollLeft(scrollLeft > 5) // Small threshold for smoother UX
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5)
     }
   }
 
   const scroll = (direction) => {
     if (rowRef.current) {
-      const scrollAmount = rowRef.current.clientWidth * 0.8
+      const scrollAmount = rowRef.current.clientWidth * 0.75 // Slightly less aggressive scrolling
       const newPosition = direction === 'left' 
         ? Math.max(0, scrollPosition - scrollAmount)
         : scrollPosition + scrollAmount
@@ -38,7 +53,27 @@ const ContentRow = ({
     }
   }
 
+  // Touch/drag scrolling for better mobile experience
+  const handleMouseDown = (e) => {
+    setIsDragging(true)
+    setDragStart({ x: e.clientX, scrollLeft: rowRef.current.scrollLeft })
+  }
+
+  const handleMouseMove = (e) => {
+    if (!isDragging || !dragStart) return
+    e.preventDefault()
+    const walk = (e.clientX - dragStart.x) * 2 // Multiply for faster scrolling
+    rowRef.current.scrollLeft = dragStart.scrollLeft - walk
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+    setDragStart(null)
+  }
+
   const handleItemClick = (item, index) => {
+    // Prevent click during drag
+    if (isDragging) return
     if (onItemClick) {
       onItemClick(item, index)
     }
@@ -56,35 +91,70 @@ const ContentRow = ({
 
   return (
     <div className="content-row">
-      <h2 className="content-row__title">{title}</h2>
+      <div className="content-row__header">
+        <h2 className="content-row__title">{title}</h2>
+        
+        {/* Scroll Indicator */}
+        {showScrollIndicator && canScrollRight && (
+          <motion.div 
+            className="content-row__scroll-hint"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+          >
+            <span>Scroll for more</span>
+            <Icon name="chevron-right" size={16} />
+          </motion.div>
+        )}
+      </div>
       
       <div className="content-row__wrapper">
-        {/* Left Arrow */}
-        {canScrollLeft && (
-          <button
-            className="content-row__nav content-row__nav--left"
-            onClick={() => scroll('left')}
-          >
-            <Icon name="chevron-left" size={32} />
-          </button>
-        )}
+        {/* Left Arrow - Always visible when scrollable */}
+        <motion.button
+          className="content-row__nav content-row__nav--left"
+          onClick={() => scroll('left')}
+          animate={{ 
+            opacity: canScrollLeft ? 1 : 0.3,
+            scale: canScrollLeft ? 1 : 0.8
+          }}
+          whileHover={{ scale: canScrollLeft ? 1.1 : 0.8 }}
+          whileTap={{ scale: canScrollLeft ? 0.95 : 0.8 }}
+          disabled={!canScrollLeft}
+        >
+          <Icon name="chevron-left" size={24} />
+        </motion.button>
 
         {/* Content Container */}
         <div
           ref={rowRef}
-          className="content-row__container"
+          className={`content-row__container ${isDragging ? 'content-row__container--dragging' : ''}`}
           onScroll={updateScrollButtons}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
         >
           <div className="content-row__items">
+            {/* Progress indicator */}
+            <div className="content-row__progress">
+              <div 
+                className="content-row__progress-bar"
+                style={{
+                  width: `${((scrollPosition / (rowRef.current?.scrollWidth - rowRef.current?.clientWidth || 1)) * 100)}%`
+                }}
+              />
+            </div>
+            
             {items.map((item, index) => (
               <motion.div
                 key={item.id || index}
                 className={`content-row__item content-row__item--${itemType}`}
-                whileHover={{ scale: 1.05, zIndex: 10 }}
+                whileHover={{ scale: isDragging ? 1 : 1.05, zIndex: 10 }}
                 transition={{ duration: 0.2 }}
                 onClick={() => handleItemClick(item, index)}
                 onHoverStart={() => handleItemHover(item, index, true)}
                 onHoverEnd={() => handleItemHover(item, index, false)}
+                style={{ cursor: isDragging ? 'grabbing' : 'pointer' }}
               >
                 <div className="content-row__item-image">
                   <img
@@ -94,6 +164,7 @@ const ContentRow = ({
                       e.target.style.display = 'none'
                       e.target.nextElementSibling.style.display = 'flex'
                     }}
+                    draggable={false} // Prevent default image drag
                   />
                   
                   {/* Fallback with Unsplash */}
@@ -177,15 +248,20 @@ const ContentRow = ({
           </div>
         </div>
 
-        {/* Right Arrow */}
-        {canScrollRight && (
-          <button
-            className="content-row__nav content-row__nav--right"
-            onClick={() => scroll('right')}
-          >
-            <Icon name="chevron-right" size={32} />
-          </button>
-        )}
+        {/* Right Arrow - Always visible when scrollable */}
+        <motion.button
+          className="content-row__nav content-row__nav--right"
+          onClick={() => scroll('right')}
+          animate={{ 
+            opacity: canScrollRight ? 1 : 0.3,
+            scale: canScrollRight ? 1 : 0.8
+          }}
+          whileHover={{ scale: canScrollRight ? 1.1 : 0.8 }}
+          whileTap={{ scale: canScrollRight ? 0.95 : 0.8 }}
+          disabled={!canScrollRight}
+        >
+          <Icon name="chevron-right" size={24} />
+        </motion.button>
       </div>
     </div>
   )

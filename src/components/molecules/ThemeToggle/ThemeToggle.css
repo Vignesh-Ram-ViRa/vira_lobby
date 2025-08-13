@@ -4,19 +4,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 4rem;
-  height: 4rem;
+  width: 40px; /* Match header action size */
+  height: 40px; /* Match header action size */
+  min-width: 40px; /* Prevent shrinking */
+  min-height: 40px; /* Prevent shrinking */
+  max-width: 40px; /* Prevent growing */
+  max-height: 40px; /* Prevent growing */
   border: none;
   background: transparent;
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: all var(--transition-fast);
   position: relative;
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
 .theme-toggle:hover {
   background-color: var(--color-bg-secondary);
-  transform: scale(1.1);
+  transform: none; /* Remove scale transform to prevent header movement */
 }
 
 .theme-toggle__icon {
