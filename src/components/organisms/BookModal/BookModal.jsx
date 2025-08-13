@@ -6,7 +6,7 @@ import Button from '@components/atoms/Button'
 import { text } from '@constants/language'
 import { supabase } from '@utils/supabase'
 import { useAuth } from '@hooks/useAuth'
-import { uploadImageToCloudinary, validateImageFile } from '@utils/cloudinary'
+import { uploadImage } from '@utils/supabase'
 import { addBook, updateBook, removeBook, setError } from '@features/bookworm/bookwormSlice'
 import './BookModal.css'
 
@@ -145,32 +145,27 @@ const BookModal = ({
 
   // Handle image upload
   const handleImageUpload = async (file) => {
-    // Validate file first
-    const validation = validateImageFile(file)
-    if (!validation.valid) {
-      dispatch(setError(validation.errors.join(', ')))
+    // Simple file validation
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
+    if (!allowedTypes.includes(file.type)) {
+      dispatch(setError('Please select a valid image file (JPEG, PNG, WebP, or GIF)'))
+      return
+    }
+
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    if (file.size > maxSize) {
+      dispatch(setError('Image size must be less than 5MB'))
       return
     }
 
     setImageUploading(true)
     try {
-      const result = await uploadImageToCloudinary(
-        file, 
-        'vira_lobby/bookworm',
-        {
-          tags: ['bookworm', 'cover', user?.id]
-        }
-      )
-
-      if (result.success) {
-        setFormData(prev => ({
-          ...prev,
-          cover_image_url: result.mediumUrl || result.url,
-          cover_public_id: result.publicId // Store for potential deletion
-        }))
-      } else {
-        throw new Error(result.error || 'Upload failed')
-      }
+      const imageUrl = await uploadImage(file)
+      
+      setFormData(prev => ({
+        ...prev,
+        cover_image_url: imageUrl
+      }))
     } catch (error) {
       console.error('Image upload failed:', error)
       dispatch(setError(error.message || 'Failed to upload image'))
@@ -366,13 +361,31 @@ const BookModal = ({
                           <span>Image not available</span>
                         </div>
                         {mode !== 'view' && (
-                          <button
-                            type="button"
-                            className="book-cover-remove"
-                            onClick={() => handleInputChange('cover_image_url', '')}
-                          >
-                            <Icon name="x" size={16} />
-                          </button>
+                          <div className="book-cover-actions">
+                            <button
+                              type="button"
+                              className="book-cover-change"
+                              onClick={() => {
+                                const input = document.createElement('input')
+                                input.type = 'file'
+                                input.accept = 'image/*'
+                                input.onchange = (e) => {
+                                  const file = e.target.files[0]
+                                  if (file) handleImageUpload(file)
+                                }
+                                input.click()
+                              }}
+                            >
+                              <Icon name="edit" size={16} />
+                            </button>
+                            <button
+                              type="button"
+                              className="book-cover-remove"
+                              onClick={() => handleInputChange('cover_image_url', '')}
+                            >
+                              <Icon name="x" size={16} />
+                            </button>
+                          </div>
                         )}
                       </div>
                     ) : (
@@ -701,11 +714,11 @@ const BookModal = ({
                   <Button
                     variant="primary"
                     onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    loading={isSubmitting}
+                    disabled={isSubmitting || imageUploading}
+                    loading={isSubmitting || imageUploading}
                   >
                     <Icon name={mode === 'edit' ? 'save' : 'plus'} size={16} />
-                    {mode === 'edit' ? 'Save Changes' : 'Add Book'}
+                    {imageUploading ? 'Uploading...' : (mode === 'edit' ? 'Save Changes' : 'Add Book')}
                   </Button>
                 </div>
               )}

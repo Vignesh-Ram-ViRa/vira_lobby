@@ -75,6 +75,12 @@ const ArtworkModal = () => {
 
   // Validate form
   const validateForm = () => {
+    console.log('🎨 Scribbles validation:', {
+      name: formData.name,
+      image_url: formData.image_url,
+      formData
+    });
+    
     if (!formData.name.trim()) {
       dispatch(setError('Artwork name is required'));
       return false;
@@ -90,6 +96,12 @@ const ArtworkModal = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    console.log('🎨 Scribbles handleSubmit called:', {
+      modalMode,
+      formData,
+      hasWriteAccess: hasWriteAccess()
+    });
+
     if (!validateForm()) return;
     
     // Check if user has write access
@@ -275,11 +287,11 @@ const ArtworkModal = () => {
                 {/* Image Upload Section */}
                 <div className="image-upload-section">
                   <label className="form-label">{LANGUAGE.scribbles.artworkImage} *</label>
-                  <ImageUpload
-                    value={formData.image_url}
-                    onChange={handleImageUpload}
-                    className="artwork-image-upload"
-                  />
+                                  <ImageUpload
+                  currentImageUrl={formData.image_url}
+                  onImageUpload={handleImageUpload}
+                  className="artwork-image-upload"
+                />
                 </div>
 
                 {/* Form Fields */}
@@ -418,7 +430,11 @@ const ArtworkModal = () => {
               
               <Button
                 variant="primary"
-                type="submit"
+                type="button"
+                onClick={(e) => {
+                  console.log('🎨 Save button clicked!');
+                  handleSubmit(e);
+                }}
                 disabled={isSubmitting}
                 className="submit-btn"
               >

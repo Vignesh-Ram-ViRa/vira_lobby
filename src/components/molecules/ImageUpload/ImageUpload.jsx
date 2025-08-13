@@ -5,7 +5,7 @@ import Button from '@components/atoms/Button'
 import { Icon } from '@components/atoms/Icon'
 import './ImageUpload.css'
 
-const ImageUpload = ({ onImageUpload, currentImageUrl = '', disabled = false }) => {
+const ImageUpload = ({ onImageUpload, currentImageUrl = '', disabled = false, onUploadStart, onUploadEnd }) => {
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
   const [error, setError] = useState('')
@@ -45,6 +45,7 @@ const ImageUpload = ({ onImageUpload, currentImageUrl = '', disabled = false }) 
 
     setError('')
     setUploading(true)
+    if (onUploadStart) onUploadStart()
 
     try {
       // Create preview URL
@@ -70,6 +71,7 @@ const ImageUpload = ({ onImageUpload, currentImageUrl = '', disabled = false }) 
       setPreviewUrl(currentImageUrl) // Reset to original
     } finally {
       setUploading(false)
+      if (onUploadEnd) onUploadEnd()
     }
   }
 

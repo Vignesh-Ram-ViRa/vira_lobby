@@ -20,6 +20,7 @@ const VisualMediaModal = ({
   const [formData, setFormData] = useState({})
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
 
   // Reset mode when modal opens with different initial mode
   useEffect(() => {
@@ -358,6 +359,8 @@ const VisualMediaModal = ({
                       <ImageUpload
                         currentImageUrl={formData.poster_image_url || formData.cover_image_url || formData.image_url || ''}
                         onImageUpload={handleImageUpload}
+                        onUploadStart={() => setIsUploading(true)}
+                        onUploadEnd={() => setIsUploading(false)}
                         disabled={false}
                       />
                     </div>
@@ -434,10 +437,10 @@ const VisualMediaModal = ({
               <Button
                 variant="primary"
                 onClick={handleSave}
-                disabled={isLoading}
-                loading={isLoading}
+                disabled={isLoading || isUploading}
+                loading={isLoading || isUploading}
               >
-                {mode === 'add' ? 'Add' : 'Save'}
+                {isUploading ? 'Uploading...' : (mode === 'add' ? 'Add' : 'Save')}
               </Button>
             </div>
           )}
