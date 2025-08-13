@@ -147,7 +147,47 @@ export const text = {
     noAccount: "Don't have an account?",
     welcome: "Welcome back!",
     guestWelcome: "Welcome, Guest!"
+  },
+  wanderlog: {
+    title: "Wanderlog",
+    subtitle: "Document your travel adventures and experiences",
+    addTrip: "Add Trip",
+    noTrips: "No trips recorded yet",
+    addFirstTrip: "Start documenting your adventures!",
+    searchPlaceholder: "Search by city, country, area, attractions...",
+    viewTrip: "View Trip",
+    editTrip: "Edit Trip",
+    deleteTrip: "Delete Trip",
+    city: "City",
+    country: "Country",
+    area: "Area",
+    attractions: "Attractions",
+    highlight: "Highlight",
+    photosLink: "Photos Link",
+    sampleImages: "Sample Images",
+    coverImage: "Cover Image",
+    addImages: "Add Images",
+    removeImage: "Remove Image",
+    imageGallery: "Image Gallery",
+    allAttractions: "All Attractions",
+    filterByRating: "Filter by Rating",
+    sortByDate: "Sort by Date",
+    sortByRating: "Sort by Rating",
+    sortByAlphabetical: "Sort Alphabetically",
+    gridView: "Grid View",
+    listView: "List View"
+  },
+  common: {
+    loading: "Loading...",
+    export: "Export",
+    add: "Add",
+    edit: "Edit",
+    delete: "Delete",
+    save: "Save",
+    cancel: "Cancel",
+    close: "Close"
   }
 }
 
-export default text 
+export const LANGUAGE = text;
+export default text; 

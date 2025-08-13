@@ -1,0 +1,425 @@
+/* Wanderlog Page Styles */
+.wanderlog-page {
+  min-height: 100vh;
+  background: var(--background-primary);
+  color: var(--text-primary);
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Hero Banner Section */
+.wanderlog-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding: 3rem;
+  min-height: 60vh;
+  background: linear-gradient(135deg, var(--background-secondary) 0%, var(--background-primary) 100%);
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.wanderlog-hero-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.wanderlog-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--accent-primary);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  line-height: 1.1;
+}
+
+.wanderlog-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin: 0;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.wanderlog-hero-stats {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.wanderlog-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.wanderlog-stat-number {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  display: block;
+}
+
+.wanderlog-stat-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wanderlog-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 0.75rem;
+  height: 100%;
+}
+
+.wanderlog-hero-image {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: var(--background-tertiary);
+  position: relative;
+}
+
+.wanderlog-hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.wanderlog-hero-image:hover img {
+  transform: scale(1.05);
+}
+
+.wanderlog-hero-image-1 {
+  grid-row: span 2;
+}
+
+.wanderlog-hero-image-2 {
+  grid-column: 2;
+}
+
+.wanderlog-hero-image-3 {
+  grid-column: 3;
+}
+
+.wanderlog-hero-image-4 {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.wanderlog-hero-image-5 {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.wanderlog-header {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+.wanderlog-search-section {
+  display: flex;
+  justify-content: center;
+}
+
+.wanderlog-filter-section {
+  display: flex;
+  justify-content: center;
+}
+
+.wanderlog-actions-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.wanderlog-actions-left {
+  display: flex;
+  align-items: center;
+}
+
+.wanderlog-actions-right {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.wanderlog-export-btn,
+.wanderlog-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.wanderlog-export-btn svg,
+.wanderlog-add-btn svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.wanderlog-export-btn:hover,
+.wanderlog-add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.wanderlog-content {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Loading State */
+.wanderlog-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: var(--text-secondary);
+  gap: 1rem;
+}
+
+.wanderlog-loading span {
+  font-size: 0.875rem;
+}
+
+.wanderlog-loading svg {
+  width: 2rem;
+  height: 2rem;
+  opacity: 0.6;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.wanderlog-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+  gap: 1.5rem;
+}
+
+.wanderlog-empty svg {
+  width: 4rem;
+  height: 4rem;
+  opacity: 0.4;
+  color: var(--accent-primary);
+}
+
+.wanderlog-empty h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.wanderlog-empty p {
+  margin: 0;
+  font-size: 0.875rem;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+/* Theme-specific styles */
+/* Formal Light Theme */
+[data-theme="light"] .wanderlog-page {
+  background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+}
+
+[data-theme="light"] .wanderlog-title {
+  background: linear-gradient(135deg, #b8860b, #daa520);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Formal Dark Theme */
+[data-theme="dark"] .wanderlog-page {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+}
+
+[data-theme="dark"] .wanderlog-title {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Fun Pastel Theme */
+[data-theme="pastel"] .wanderlog-page {
+  background: linear-gradient(135deg, #faf0f7 0%, #f0e6ff 100%);
+}
+
+[data-theme="pastel"] .wanderlog-title {
+  background: linear-gradient(135deg, #9b59b6, #c586c0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .wanderlog-hero {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2rem;
+    min-height: auto;
+    text-align: center;
+  }
+
+  .wanderlog-hero-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 150px);
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .wanderlog-hero {
+    padding: 1.5rem;
+  }
+
+  .wanderlog-header {
+    padding: 1rem;
+  }
+
+  .wanderlog-title {
+    font-size: 2.25rem;
+  }
+
+  .wanderlog-subtitle {
+    font-size: 0.875rem;
+  }
+
+  .wanderlog-stat-number {
+    font-size: 1.5rem;
+  }
+
+  .wanderlog-stat-label {
+    font-size: 0.7rem;
+  }
+
+  .wanderlog-actions-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .wanderlog-actions-left,
+  .wanderlog-actions-right {
+    justify-content: center;
+  }
+
+  .wanderlog-actions-right {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .wanderlog-export-btn,
+  .wanderlog-add-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .wanderlog-export-btn svg,
+  .wanderlog-add-btn svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .wanderlog-hero-grid {
+    grid-template-rows: repeat(2, 120px);
+  }
+}
+
+@media (max-width: 480px) {
+  .wanderlog-hero {
+    padding: 1rem;
+  }
+
+  .wanderlog-header {
+    gap: 1rem;
+    padding: 0.75rem;
+  }
+
+  .wanderlog-title {
+    font-size: 2rem;
+  }
+
+  .wanderlog-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .wanderlog-hero-stats {
+    gap: 1.5rem;
+  }
+
+  .wanderlog-stat-number {
+    font-size: 1.25rem;
+  }
+
+  .wanderlog-stat-label {
+    font-size: 0.65rem;
+  }
+
+  .wanderlog-export-btn,
+  .wanderlog-add-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .wanderlog-export-btn svg,
+  .wanderlog-add-btn svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .wanderlog-hero-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 100px);
+  }
+
+  .wanderlog-hero-image-1 {
+    grid-row: span 1;
+  }
+
+  .wanderlog-empty {
+    padding: 3rem 1rem;
+  }
+
+  .wanderlog-empty svg {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .wanderlog-empty h3 {
+    font-size: 1.125rem;
+  }
+
+  .wanderlog-empty p {
+    font-size: 0.8rem;
+  }
+} 
