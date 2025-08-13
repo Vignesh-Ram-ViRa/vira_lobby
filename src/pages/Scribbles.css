@@ -1,0 +1,357 @@
+/* Scribbles Page - Art Gallery with Clean Layout */
+
+/* Container */
+.scribbles-container {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+}
+
+/* Title Section */
+.scribbles-title-section {
+  padding: 4rem 2rem 2rem 2rem;
+  text-align: center;
+  background: linear-gradient(
+    135deg,
+    var(--bg-primary) 0%,
+    var(--bg-secondary) 100%
+  );
+  border-bottom: 1px solid var(--border-color);
+}
+
+.scribbles-title-content {
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+.scribbles-main-title {
+  font-size: clamp(3rem, 8vw, 5rem);
+  font-weight: 800;
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  background: linear-gradient(
+    135deg,
+    var(--accent-primary),
+    var(--accent-secondary)
+  );
+}
+
+.scribbles-main-subtitle {
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 60rem;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Rolling Gallery Section */
+.scribbles-gallery-section {
+  padding: 3rem 0;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.scribbles-stacked-gallery {
+  max-width: 100%;
+}
+
+/* Action Bar Section */
+.scribbles-action-bar {
+  position: sticky;
+  top: 0;
+  background: rgba(var(--bg-primary-rgb), 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 100;
+  padding: 1.5rem 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.scribbles-action-content {
+  max-width: 120rem;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Single Row */
+.scribbles-single-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.scribbles-search-input {
+  flex: 1;
+  min-width: 25rem;
+  font-size: 1.1rem;
+}
+
+.scribbles-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  font-weight: 500;
+  white-space: nowrap;
+  border-radius: 0.8rem;
+  min-width: 3rem;
+  min-height: 3rem;
+}
+
+.scribbles-filter-select {
+  padding: 1rem 1.3rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.6rem;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  min-width: 13rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.scribbles-filter-select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(var(--accent-primary-rgb), 0.1);
+}
+
+.scribbles-filter-select:hover {
+  border-color: var(--accent-primary);
+}
+
+/* Layout Controls */
+.scribbles-layout-controls {
+  display: flex;
+  gap: 0.3rem;
+  background: var(--bg-secondary);
+  padding: 0.3rem;
+  border-radius: 0.8rem;
+  border: 1px solid var(--border-color);
+}
+
+.scribbles-layout-btn {
+  padding: 1rem;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  min-height: 3rem;
+  font-size: 1.2rem;
+}
+
+.scribbles-layout-btn:hover {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.scribbles-layout-active {
+  background: var(--accent-primary) !important;
+  color: white !important;
+}
+
+/* Grid Section */
+.scribbles-grid-section {
+  padding: 3rem 0;
+  min-height: 60vh;
+}
+
+.scribbles-grid-container {
+  max-width: 120rem;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.scribbles-artwork-grid {
+  width: 100%;
+}
+
+/* Theme Variables */
+:root {
+  --scribbles-grid-gap: 1.5rem;
+  --scribbles-card-radius: 1rem;
+  --scribbles-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --scribbles-shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Light Theme Variables */
+[data-theme="light"] {
+  --bg-primary-rgb: 250, 250, 250;
+  --bg-primary: rgb(var(--bg-primary-rgb));
+  --bg-secondary: #ffffff;
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --accent-primary: #d4af37;
+  --accent-secondary: #b8860b;
+  --accent-primary-rgb: 212, 175, 55;
+  --border-color: #e0e0e0;
+}
+
+/* Dark Theme Variables */
+[data-theme="dark"] {
+  --bg-primary-rgb: 10, 10, 10;
+  --bg-primary: rgb(var(--bg-primary-rgb));
+  --bg-secondary: #1a1a1a;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --accent-primary: #d4af37;
+  --accent-secondary: #ffd700;
+  --accent-primary-rgb: 212, 175, 55;
+  --border-color: #333333;
+}
+
+/* Pastel Theme Variables */
+[data-theme="pastel"] {
+  --bg-primary-rgb: 248, 244, 255;
+  --bg-primary: rgb(var(--bg-primary-rgb));
+  --bg-secondary: #ffffff;
+  --text-primary: #2d1b69;
+  --text-secondary: #6b46c1;
+  --accent-primary: #a855f7;
+  --accent-secondary: #ec4899;
+  --accent-primary-rgb: 168, 85, 247;
+  --border-color: #e9d5ff;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .scribbles-title-section {
+    padding: 3rem 1.5rem 1.5rem 1.5rem;
+  }
+
+  .scribbles-action-content {
+    padding: 0 1.5rem;
+  }
+
+  .scribbles-grid-container {
+    padding: 0 1.5rem;
+  }
+
+  .scribbles-single-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.5rem;
+  }
+
+  .scribbles-layout-controls {
+    align-self: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .scribbles-title-section {
+    padding: 2rem 1rem 1rem 1rem;
+  }
+
+  .scribbles-action-content {
+    padding: 0 1rem;
+  }
+
+  .scribbles-grid-container {
+    padding: 0 1rem;
+  }
+
+  .scribbles-single-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .scribbles-search-input {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .scribbles-add-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .scribbles-filter-select {
+    min-width: auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .scribbles-title-section {
+    padding: 1.5rem 0.8rem 0.8rem 0.8rem;
+  }
+
+  .scribbles-action-content {
+    padding: 0 0.8rem;
+  }
+
+  .scribbles-grid-container {
+    padding: 0 0.8rem;
+  }
+
+  .scribbles-main-title {
+    font-size: 2.5rem;
+  }
+
+  .scribbles-main-subtitle {
+    font-size: 1rem;
+  }
+
+  .scribbles-btn-text {
+    font-size: 0.9rem;
+  }
+}
+
+/* Loading States */
+.scribbles-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+/* Animation Support */
+@keyframes scribbles-fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scribbles-action-bar {
+  animation: scribbles-fadeIn 0.3s ease;
+}
+
+.scribbles-grid-section {
+  animation: scribbles-fadeIn 0.5s ease 0.1s both;
+}
+
+/* Print Styles */
+@media print {
+  .scribbles-action-bar {
+    display: none;
+  }
+  
+  .scribbles-grid-section {
+    padding: 1rem 0;
+  }
+  
+  .scribbles-title-section {
+    padding: 1rem 0;
+    page-break-inside: avoid;
+  }
+} 

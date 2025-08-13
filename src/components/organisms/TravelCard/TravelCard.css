@@ -112,7 +112,7 @@
 }
 
 .travel-card-date {
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   background: rgba(255, 255, 255, 0.2);
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
@@ -148,10 +148,10 @@
 }
 
 .travel-card-attraction-tag {
-  font-size: 0.75rem;
+  font-size: 1rem;
   background: rgba(255, 255, 255, 0.2);
   color: white;
-  padding: 0.25rem 0.625rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 0.75rem;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -159,10 +159,10 @@
 }
 
 .travel-card-attraction-more {
-  font-size: 0.75rem;
+  font-size: 1rem;
   color: rgba(255, 255, 255, 0.7);
   font-style: italic;
-  padding: 0.25rem 0.5rem;
+  padding: 0.4rem 0.7rem;
 }
 
 .travel-card-highlight {
@@ -174,7 +174,7 @@
 
 .travel-card-highlight p {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: 1.1rem;
   line-height: 1.4;
   color: rgba(255, 255, 255, 0.9);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);

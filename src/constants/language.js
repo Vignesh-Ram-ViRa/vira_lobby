@@ -177,6 +177,32 @@ export const text = {
     gridView: "Grid View",
     listView: "List View"
   },
+  scribbles: {
+    title: "Scribbles",
+    subtitle: "Your artistic journey and creative expressions",
+    heroTitle: "Art Gallery",
+    heroSubtitle: "Explore the collection of creative works and artistic expressions",
+    addArtwork: "Add Artwork",
+    editArtwork: "Edit Artwork",
+    viewArtwork: "View Artwork",
+    noArtworks: "No artworks found",
+    addFirstArtwork: "Create your first artistic masterpiece!",
+    searchPlaceholder: "Search by name, genre, category, description...",
+    artworkName: "Artwork Name",
+    artworkImage: "Artwork Image",
+    genre: "Genre",
+    category: "Category",
+    date: "Date",
+    description: "Description",
+    allGenres: "All Genres",
+    allCategories: "All Categories",
+    sortByGenre: "Sort by Genre",
+    sortByCategory: "Sort by Category",
+    layouts: {
+      bento: "Bento Box Layout",
+      stack: "Stack Layout"
+    }
+  },
   common: {
     loading: "Loading...",
     export: "Export",
@@ -185,7 +211,10 @@ export const text = {
     delete: "Delete",
     save: "Save",
     cancel: "Cancel",
-    close: "Close"
+    close: "Close",
+    saving: "Saving...",
+    sortByDate: "Sort by Date",
+    sortByName: "Sort by Name"
   }
 }
 

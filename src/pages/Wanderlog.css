@@ -14,8 +14,22 @@
   gap: 2rem;
   padding: 3rem;
   min-height: 60vh;
-  background: linear-gradient(135deg, var(--background-secondary) 0%, var(--background-primary) 100%);
+  background: 
+    linear-gradient(135deg, rgba(var(--background-secondary-rgb), 0.85) 0%, rgba(var(--background-primary-rgb), 0.9) 100%),
+    url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=80') center/cover;
   border-bottom: 1px solid var(--border-primary);
+  position: relative;
+}
+
+.wanderlog-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  backdrop-filter: blur(2px);
+  pointer-events: none;
 }
 
 .wanderlog-hero-content {
@@ -23,6 +37,8 @@
   flex-direction: column;
   justify-content: center;
   gap: 1.5rem;
+  position: relative;
+  z-index: 1;
 }
 
 .wanderlog-title {
@@ -35,7 +51,7 @@
 }
 
 .wanderlog-subtitle {
-  font-size: 1rem;
+  font-size: 1.25rem;
   color: var(--text-secondary);
   margin: 0;
   opacity: 0.9;
@@ -63,7 +79,7 @@
 }
 
 .wanderlog-stat-label {
-  font-size: 0.75rem;
+  font-size: 1rem;
   color: var(--text-secondary);
   margin-top: 0.25rem;
   text-transform: uppercase;
@@ -76,6 +92,8 @@
   grid-template-rows: repeat(2, 1fr);
   gap: 0.75rem;
   height: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .wanderlog-hero-image {
@@ -197,7 +215,7 @@
 }
 
 .wanderlog-loading span {
-  font-size: 0.875rem;
+  font-size: 1.125rem;
 }
 
 .wanderlog-loading svg {
@@ -233,13 +251,13 @@
 
 .wanderlog-empty h3 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.75rem;
   color: var(--text-primary);
 }
 
 .wanderlog-empty p {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 1.125rem;
   max-width: 400px;
   line-height: 1.5;
 }
@@ -312,15 +330,15 @@
   }
 
   .wanderlog-subtitle {
-    font-size: 0.875rem;
+    font-size: 1.125rem;
   }
 
   .wanderlog-stat-number {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
   }
 
   .wanderlog-stat-label {
-    font-size: 0.7rem;
+    font-size: 0.9rem;
   }
 
   .wanderlog-actions-section {
@@ -370,7 +388,7 @@
   }
 
   .wanderlog-subtitle {
-    font-size: 0.8rem;
+    font-size: 1rem;
   }
 
   .wanderlog-hero-stats {
@@ -378,11 +396,11 @@
   }
 
   .wanderlog-stat-number {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
   }
 
   .wanderlog-stat-label {
-    font-size: 0.65rem;
+    font-size: 0.8rem;
   }
 
   .wanderlog-export-btn,

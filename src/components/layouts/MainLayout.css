@@ -120,7 +120,7 @@
 }
 
 .logo__text {
-  font-size: 1.4rem; /* Slightly reduced from 1.5rem */
+  font-size: 2.2rem; /* Increased for better visibility */
   font-weight: 700;
   color: var(--color-text-primary);
   text-decoration: none;
@@ -133,7 +133,7 @@
 .logo__page {
   font-weight: 500;
   color: var(--color-text-secondary);
-  font-size: 1.2rem;
+  font-size: 1.8rem;
 }
 
 .logo__text::before {
@@ -287,7 +287,7 @@
 }
 
 .sidebar__nav-text {
-  font-size: 1.1rem; /* Increased from 1rem for better visibility */
+  font-size: 1.6rem; /* Further increased for better visibility */
   font-weight: 500;
   opacity: 0;
   transform: translateX(-10px);
@@ -432,17 +432,17 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
-    font-size: 1.2rem; /* Override desktop font size */
+    font-size: 1.8rem; /* Increased mobile font size */
   }
 
   .logo__text {
-    font-size: 1.2rem;
+    font-size: 1.8rem;
     line-height: 1;
     font-weight: 700;
   }
 
   .header__page-title {
-    font-size: 0.9rem;
+    font-size: 1.4rem;
     color: var(--color-text-secondary);
     font-weight: 500;
   }
