@@ -13,7 +13,7 @@ export const THEME_CONFIG = {
     icon: 'sun',
     variables: {
       // Primary Colors - Clean Dashboard Blue
-      '--color-primary': '#3B82F6', // Clean Blue
+      '--color-primary': 'linear-gradient(135deg, rgba(161, 192, 255, 0.77) 0%,rgba(58, 106, 249, 0.83) 100%)', // Clean Blue '#3B82F6'
       '--color-primary-light': '#60A5FA', // Light Blue
       '--color-primary-dark': '#1D4ED8', // Dark Blue
       

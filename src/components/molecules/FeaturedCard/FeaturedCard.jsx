@@ -179,7 +179,7 @@ const FeaturedCard = ({
             whileHover={{ scale: 1.1, rotate: 10 }}
             transition={{ duration: 0.3 }}
           >
-            <Icon name={config.icon} size={32} />
+            <Icon name={config.icon} size={16} />
           </motion.div>
           
           <div className="featured-card__title-section">

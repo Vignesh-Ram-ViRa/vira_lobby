@@ -10,10 +10,10 @@
 }
 
 .auth-layout__container {
-  width: 100%;
+  /* width: 100%;
   max-width: 40rem;
   padding: var(--spacing-xl);
   background-color: var(--color-bg-card);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-strong);
+  box-shadow: var(--shadow-strong); */
 } 

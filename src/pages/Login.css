@@ -1,13 +1,13 @@
 /* Login Page */
 .login-page {
-  min-height: 100vh;
+  /* min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--color-bg-primary);
   padding: 2rem 1rem;
   position: relative;
-  overflow: hidden;
+  overflow: hidden; */
 }
 
 .login-loading {
@@ -35,10 +35,10 @@
 
 /* Login Container */
 .login-container {
-  position: relative;
+  /* position: relative;
   z-index: 2;
   width: 100%;
-  max-width: 28rem;
+  max-width: 28rem; */
 }
 
 .login-card {

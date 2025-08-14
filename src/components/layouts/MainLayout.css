@@ -100,7 +100,7 @@
   height: 44px;
   border: none;
   background: transparent;
-  border-radius: var(--border-radius-md);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
   color: var(--color-text-primary);
@@ -251,7 +251,7 @@
   display: flex;
   align-items: center;
   padding: var(--spacing-md);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
   color: var(--color-text-secondary);

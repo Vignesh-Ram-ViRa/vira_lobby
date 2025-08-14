@@ -1,6 +1,6 @@
 .featured-card {
   position: relative;
-  background: var(--hobby-gradient);
+  /* background: var(--hobby-gradient); */
   border-radius: 2rem;
   padding: 2rem;
   cursor: pointer;
@@ -38,7 +38,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--hobby-gradient);
+  /* background: var(--hobby-gradient); */
   opacity: 0.9;
 }
 
@@ -271,9 +271,9 @@
 /* Hover Effects */
 .featured-card:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 
-    0 25px 50px rgba(0, 0, 0, 0.25),
-    0 0 100px rgba(255, 255, 255, 0.1);
+  /* box-shadow: 
+    0 15px 25px rgba(0, 0, 0, 0.25),
+    0 0 50px rgba(255, 255, 255, 0.1); */
   border-color: rgba(255, 255, 255, 0.3);
 }
 
@@ -288,7 +288,7 @@
 
 .featured-card:hover .featured-card__action {
   background: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  /* box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); */
 }
 
 .featured-card:active {
@@ -476,104 +476,23 @@
 
 /* Dark theme red-black metal gradients for professional car metallic finish */
 /* Using background with !important to override inline styles */
-[data-theme="formal-dark"] .featured-card--bookworm {
-  background: linear-gradient(135deg, 
-    #2A0A0A 0%, 
-    #8B0000 15%, 
-    #1A0A0A 30%, 
-    #A0522D 45%, 
-    #0A0A0A 60%, 
-    #8B4513 75%, 
-    #1A0A0A 100%
-  ) !important;
+[data-theme="formal-light"] .featured-card {
+   background: linear-gradient(135deg, 
+     rgba(161, 192, 255, 0.516) 0%, 
+     rgba(58, 106, 249, 0.63) 100%
+   ) !important;
 }
 
-[data-theme="formal-dark"] .featured-card--bingescape {
-  background: linear-gradient(135deg, 
-    #2A0A0A 0%, 
-    #B22222 15%, 
-    #1A0A0A 30%, 
-    #DC143C 45%, 
-    #0A0A0A 60%, 
-    #8B0000 75%, 
-    #1A0A0A 100%
-  ) !important;
-}
-
-[data-theme="formal-dark"] .featured-card--filmFrenzy {
-  background: linear-gradient(135deg, 
-    #1A0A0A 0%, 
-    #8B0000 15%, 
-    #2A0A0A 30%, 
-    #CD5C5C 45%, 
-    #0A0A0A 60%, 
-    #DC2626 75%, 
-    #1A0A0A 100%
-  ) !important;
-}
-
-[data-theme="formal-dark"] .featured-card--otakuHub {
-  background: linear-gradient(135deg, 
-    #1A0A0A 0%, 
-    #8B0000 15%, 
-    #2A0A0A 30%, 
-    #DC143C 45%, 
-    #0A0A0A 60%, 
-    #B22222 75%, 
-    #1A0A0A 100%
-  ) !important;
-}
-
-[data-theme="formal-dark"] .featured-card--wanderlog {
-  background: linear-gradient(135deg, 
-    #0A1A0A 0%, 
-    #8B0000 15%, 
-    #1A0A0A 30%, 
-    #556B2F 45%, 
-    #0A0A0A 60%, 
-    #228B22 75%, 
-    #1A0A0A 100%
-  ) !important;
-}
-
-[data-theme="formal-dark"] .featured-card--scribbles {
-  background: linear-gradient(135deg, 
-    #1A0A0A 0%, 
-    #8B0000 15%, 
-    #2A0A0A 30%, 
-    #CD853F 45%, 
-    #0A0A0A 60%, 
-    #A0522D 75%, 
-    #1A0A0A 100%
-  ) !important;
-}
-
-[data-theme="formal-dark"] .featured-card--shutterTales {
-  background: linear-gradient(135deg, 
-    #1A0A1A 0%, 
-    #8B0000 15%, 
-    #1A0A0A 30%, 
-    #8B008B 45%, 
-    #0A0A0A 60%, 
-    #9370DB 75%, 
-    #1A0A0A 100%
-  ) !important;
-}
-
-[data-theme="formal-dark"] .featured-card--spotLight {
-  background: linear-gradient(135deg, 
-    #1A1A0A 0%, 
-    #8B0000 15%, 
-    #1A0A0A 30%, 
-    #DAA520 45%, 
-    #0A0A0A 60%, 
-    #FFD700 75%, 
-    #1A0A0A 100%
-  ) !important;
+[data-theme="fun-pastel"] .featured-card {
+   background: var(--hobby-gradient);
 }
 
 /* Enhanced metallic effects for dark theme */
 [data-theme="formal-dark"] .featured-card {
+  background: linear-gradient(135deg, 
+     rgba(76, 7, 7, 0.629) 0%, 
+     rgba(67, 36, 36, 0.551) 100%
+  );
   border: 1px solid rgba(220, 38, 38, 0.3);
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.6),
@@ -583,11 +502,11 @@
 
 [data-theme="formal-dark"] .featured-card:hover {
   border-color: rgba(220, 38, 38, 0.5);
-  box-shadow: 
+  /* box-shadow: 
     0 25px 50px rgba(0, 0, 0, 0.8),
     0 0 100px rgba(220, 38, 38, 0.3),
     inset 0 1px 0 rgba(220, 38, 38, 0.4),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.9);
+    inset 0 -1px 0 rgba(0, 0, 0, 0.9); */
 }
 
 /* Dark theme metallic icon backgrounds */
